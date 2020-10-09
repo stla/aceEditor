@@ -2,5 +2,9 @@
 
 export(aceEditor)
 import(htmltools)
-import(htmlwidgets)
 import(reactR)
+import(rstudioapi)
+importFrom(htmlwidgets,createWidget)
+importFrom(reactR,component)
+importFrom(reactR,reactMarkup)
+importFrom(tools,file_ext)

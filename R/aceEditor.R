@@ -2,21 +2,51 @@
 #'
 #' <Add Description>
 #'
-#' @import htmlwidgets reactR
+#' @importFrom htmlwidgets createWidget
+#' @importFrom reactR component reactMarkup
+#' @import rstudioapi
+#' @importFrom tools file_ext
 #'
 #' @export
-aceEditor <- function(message, width = NULL, height = NULL, elementId = NULL) {
+aceEditor <- function(
+  contents, mode = NULL,
+  width = NULL, height = NULL,
+  elementId = NULL
+) {
+
+  if(is.null(contents)){
+    if(is.null(mode)){
+      mode <- "text"
+    }
+  }else if(missing(contents)){
+    contents <- rstudioapi::xxx
+    if(is.null(mode)){
+      mode <- "text"
+    }
+  }else if(file.exists(contents)){
+    contents <- suppressWarnings(readLines(contents))
+    if(is.null(mode)){
+      ext <- tolower(file_ext(contents))
+      mode <- switch(
+        ext,
+        js = "javascript"
+      )
+    }
+  }
 
   # describe a React component to send to the browser for rendering.
-  component <- reactR::component(
+  editor <- component(
     "Ace",
-    list()
+    list(
+      contents = contents,
+      mode = mode
+    )
   )
 
   # create widget
-  htmlwidgets::createWidget(
+  createWidget(
     name = "aceEditor",
-    reactR::reactMarkup(component),
+    x = reactMarkup(editor),
     width = width,
     height = height,
     package = "aceEditor",
