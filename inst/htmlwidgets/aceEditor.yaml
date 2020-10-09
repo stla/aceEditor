@@ -6,6 +6,10 @@
 #    script: worker-javascript.c56345ae.js
 #    stylesheet:
 dependencies:
+ - name: aceEditor
+   version: 0.1.0
+   src: htmlwidgets
+   stylesheet: aceEditor.css
  - name: prettier
    version: 2.1.2
    src: htmlwidgets/prettier
