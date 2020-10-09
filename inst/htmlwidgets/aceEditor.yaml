@@ -1,0 +1,22 @@
+# (uncomment to add a dependency)
+# dependencies:
+#  - name: x
+#    version: 0.0.0
+#    src: htmlwidgets
+#    script: worker-javascript.c56345ae.js
+#    stylesheet:
+dependencies:
+ - name: prettier
+   version: 2.1.2
+   src: htmlwidgets/prettier
+   script:
+    - standalone.js
+    - parser-babel.js
+    - parser-html.js
+    - parser-markdown.js
+    - parser-postcss.js
+    - parser-yaml.js
+ - name: jQuery
+   version: 3.5.1
+   src: htmlwidgets/jQuery
+   script: jquery.min.js
