@@ -2,7 +2,7 @@
 #'
 #' <Add Description>
 #'
-#' @import htmlwidgets
+#' @import htmlwidgets reactR
 #'
 #' @export
 aceEditor <- function(message, width = NULL, height = NULL, elementId = NULL) {
@@ -24,38 +24,10 @@ aceEditor <- function(message, width = NULL, height = NULL, elementId = NULL) {
   )
 }
 
-#' Shiny bindings for aceEditor
-#'
-#' Output and render functions for using aceEditor within Shiny
-#' applications and interactive Rmd documents.
-#'
-#' @param outputId output variable to read from
-#' @param width,height Must be a valid CSS unit (like \code{'100\%%'},
-#'   \code{'400px'}, \code{'auto'}) or a number, which will be coerced to a
-#'   string and have \code{'px'} appended.
-#' @param expr An expression that generates a aceEditor
-#' @param env The environment in which to evaluate \code{expr}.
-#' @param quoted Is \code{expr} a quoted expression (with \code{quote()})? This
-#'   is useful if you want to save an expression in a variable.
-#'
-#' @name aceEditor-shiny
-#'
-#' @export
-aceEditorOutput <- function(outputId, width = "100%", height = "400px") {
-  htmlwidgets::shinyWidgetOutput(outputId, "aceEditor", width, height, package = "aceEditor")
-}
-
-#' @rdname aceEditor-shiny
-#' @export
-renderAceEditor <- function(expr, env = parent.frame(), quoted = FALSE) {
-  if (!quoted) {
-    expr <- substitute(expr)
-  } # force quoted
-  htmlwidgets::shinyRenderWidget(expr, aceEditorOutput, env, quoted = TRUE)
-}
 
 #' Called by HTMLWidgets to produce the widget's root element.
-#' @rdname aceEditor-shiny
+#' @import htmltools
+#' @noRd
 aceEditor_html <- function(id, style, class, ...) {
   htmltools::tagList(
     # Necessary for RStudio viewer version < 1.2
