@@ -29,6 +29,7 @@ import "ace-builds/src-noconflict/theme-cobalt";
 /*----------------------------------------------------------------------------*/
 
 $(document).ready(function () {
+
   $("#btn-prettify").on("click", function () {
     let ed = ace.edit("UNIQUE_ID_OF_DIV");
     let result = A.prettify(ed.getValue(), "babel");
@@ -39,6 +40,18 @@ $(document).ready(function () {
       alert("error");
     }
   });
+
+  $("#btn-format").on("click", function () {
+    let ed = ace.edit("UNIQUE_ID_OF_DIV");
+    let result = A.format(ed.getValue(), "javascript");
+    console.log(result);
+    if(result.error === null) {
+      ed.setValue(result.prettyCode, -1);
+    } else {
+      alert("error");
+    }
+  });
+    
 });
 
 

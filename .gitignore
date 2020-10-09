@@ -3,3 +3,5 @@
 .RData
 node_modules
 inst/essais
+inst/testFiles
+inst/folderGadget.R

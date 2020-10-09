@@ -7,3 +7,5 @@
 ^webpack\.config\.js$
 ^yarn\.lock$
 ^inst/essais$
+^inst/testFiles$
+^inst/folderGadget\.R$

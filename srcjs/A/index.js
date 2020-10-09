@@ -24,3 +24,29 @@ export const prettify = function (code, parser) {
     error: error
   };
 };
+
+
+export const format = function(code, mode) {
+  var prettyCode = null, 
+    error = null;
+  let tabString = " ".repeat(2);
+  try {
+    switch(mode) {
+      case "javascript":
+        prettyCode = indent.js(code, {tabString: tabString});
+        break;
+      case "css":
+        prettyCode = indent.css(code, {tabString: tabString});
+        break;
+      case "html":
+        prettyCode = indent.html(code, {tabString: tabString});
+        break;
+    }
+  } catch(err) {
+    error = err.message;
+  }
+  return {
+    prettyCode: prettyCode,
+    error: error
+  };
+};
