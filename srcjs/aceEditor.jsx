@@ -33,6 +33,11 @@ $(document).ready(function () {
     let ed = ace.edit("UNIQUE_ID_OF_DIV");
     let result = A.prettify(ed.getValue(), "babel");
     console.log(result);
+    if(result.error === null) {
+      ed.setValue(result.prettyCode, -1);
+    } else {
+      alert("error");
+    }
   });
 });
 
@@ -41,7 +46,7 @@ $(document).ready(function () {
 
 /*----------------------------------------------------------------------------*/
 function onChange(newValue) {
-  console.log("change", newValue);
+  //console.log("change", newValue);
 }
 
 class Ace extends React.PureComponent {
