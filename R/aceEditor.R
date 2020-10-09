@@ -26,15 +26,27 @@ aceEditor <- function(message, width = NULL, height = NULL, elementId = NULL) {
 
 
 #' Called by HTMLWidgets to produce the widget's root element.
-#' @import htmltools
+#' @import htmltools reactR
 #' @noRd
 aceEditor_html <- function(id, style, class, ...) {
-  htmltools::tagList(
+  tagList(
     # Necessary for RStudio viewer version < 1.2
-    reactR::html_dependency_corejs(),
-    reactR::html_dependency_react(),
-    reactR::html_dependency_reacttools(),
-    htmltools::tags$button(id = "btn-prettify", "hello"),
-    htmltools::tags$div(id = id, class = class, style = style)
+    html_dependency_corejs(),
+    html_dependency_react(),
+    html_dependency_reacttools(),
+    withTags(
+      div(
+        id = "buttonsBar",
+        button(
+          id = "btn-prettify",
+          "prettify"
+        ),
+        button(
+          id = "btn-format",
+          "format"
+        )
+      )
+    ),
+    tags$div(id = id, class = class, style = style)
   )
 }

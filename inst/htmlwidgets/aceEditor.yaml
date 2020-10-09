@@ -10,6 +10,10 @@ dependencies:
    version: 0.1.0
    src: htmlwidgets
    stylesheet: aceEditor.css
+ - name: indent
+   version: 0.3.5
+   src: htmlwidgets/indent
+   script: indent.min.js
  - name: prettier
    version: 2.1.2
    src: htmlwidgets/prettier
