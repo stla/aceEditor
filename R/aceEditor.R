@@ -72,14 +72,22 @@ aceEditor_html <- function(id, style, class, ...) {
     withTags(
       div(
         id = "buttonsBar",
-        button(
-          id = "btn-prettify",
-          "prettify"
+        div(
+          id = "buttonsBlock",
+          button(
+            id = "btn-prettify",
+            "prettify"
+          ),
+          button(
+            id = "btn-format",
+            "format"
+          )
         ),
         button(
-          id = "btn-format",
-          "format"
-        )
+          id = "btn-save",
+          "save"
+        ),
+        div(style = "clear: both;")
       )
     ),
     tags$div(id = id, class = class, style = style)

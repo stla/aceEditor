@@ -9,15 +9,22 @@ body {
 }
 
 #buttonsBar {
+  margin-bottom: 5px;
+}
+
+#buttonsBlock {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  float: left;
 /*  justify-content: space-between; */
 }
 
-#btn-prettify, #btn-format {
-  margin-bottom: 5px;
-  margin-right: 5px;
+#btn-save {
+  float: right;
+}
+
+button {
 	border: 1px solid transparent;
 	-webkit-border-radius: 3px;
 	-moz-border-radius: 3px;
@@ -40,7 +47,7 @@ body {
 	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#9C27B0, endColorstr=#BD2DF5);
 }
 
-#btn-prettify:hover, #btn-format:hover {
+button:hover {
 	border: 1px solid #52145d;
 	background-color: #771e86;
 	background-image: -webkit-gradient(linear, left top, left bottom, from(#771e86), to(#a70be4));
@@ -50,4 +57,8 @@ body {
 	background-image: -o-linear-gradient(top, #771e86, #a70be4);
 	background-image: linear-gradient(to bottom, #771e86, #a70be4);
 	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#771e86, endColorstr=#a70be4);
+}
+
+#btn-prettify, #btn-format {
+  margin-right: 5px;
 }
