@@ -53,7 +53,22 @@ class Ace extends React.PureComponent {
         fileName = this.props.fileName;
 
     // disable buttons according to mode 
+    let formattable = [
+      "javascript", "jsx", "css", "scss", "html", "rhtml"
+    ];
+    let prettifiable = formattable.concat([
+      "markdown", "yaml", "typescript"
+    ]);
+    if(mode.indexOf(formattable) === -1) {
+      $("#btn-format").hide();
+    }
+    if(mode.indexOf(prettifiable) === -1) {
+      $("#btn-prettify").hide();
+    }
 
+
+
+    // buttons actions
     $("#btn-prettify").on("click", function () {
       let ed = ace.edit("UNIQUE_ID_OF_DIV");
       let parser;
