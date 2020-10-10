@@ -24,6 +24,8 @@ import AceEditor from "react-ace";
 ////import jsWorkerUrl from 'ace-builds/src-noconflict/worker-javascript';
 ////ace.config.setModuleUrl("ace/mode/javascript_worker", jsWorkerUrl);
 
+import "ace-builds/src-noconflict/ext-searchbox";
+
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/theme-cobalt";
 /*----------------------------------------------------------------------------*/
