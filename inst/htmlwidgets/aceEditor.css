@@ -12,11 +12,12 @@ body {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  justify-content: space-between;
+/*  justify-content: space-between; */
 }
 
 #btn-prettify, #btn-format {
-  margin-bottom: 7px;
+  margin-bottom: 5px;
+  margin-right: 5px;
 	border: 1px solid transparent;
 	-webkit-border-radius: 3px;
 	-moz-border-radius: 3px;

@@ -70,8 +70,9 @@ class Ace extends React.PureComponent {
   render() {
     return (
       <AceEditor
-        mode="javascript"
         theme="cobalt"
+        mode={this.props.mode}
+        value={this.props.contents}
         onChange={onChange}
         name="UNIQUE_ID_OF_DIV"
         editorProps={{ $blockScrolling: true }}

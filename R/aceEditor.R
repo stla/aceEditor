@@ -4,7 +4,7 @@
 #'
 #' @importFrom htmlwidgets createWidget
 #' @importFrom reactR component reactMarkup
-#' @import rstudioapi
+#' @importFrom rstudioapi getSourceEditorContext isAvailable
 #' @importFrom tools file_ext
 #'
 #' @export
@@ -19,12 +19,16 @@ aceEditor <- function(
       mode <- "text"
     }
   }else if(missing(contents)){
-    contents <- rstudioapi::xxx
+    if(isAvailable()){
+      context <- getSourceEditorContext()
+      contents <- paste0(context[["contents"]], collapse = "\n")
+    }else{
+      contents <- NULL
+    }
     if(is.null(mode)){
-      mode <- "text"
+      mode <- "text" # no, file ext
     }
   }else if(file.exists(contents)){
-    contents <- suppressWarnings(readLines(contents))
     if(is.null(mode)){
       ext <- tolower(file_ext(contents))
       mode <- switch(
@@ -32,6 +36,7 @@ aceEditor <- function(
         js = "javascript"
       )
     }
+    contents <- paste0(suppressWarnings(readLines(contents)), collapse = "\n")
   }
 
   # describe a React component to send to the browser for rendering.
