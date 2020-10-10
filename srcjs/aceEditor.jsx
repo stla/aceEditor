@@ -26,8 +26,17 @@ import AceEditor from "react-ace";
 
 import "ace-builds/src-noconflict/ext-language_tools";
 import "ace-builds/src-noconflict/ext-searchbox";
+
+import "ace-builds/src-noconflict/snippets/css";
+import "ace-builds/src-noconflict/snippets/html";
+import "ace-builds/src-noconflict/snippets/r";
 import "ace-builds/src-noconflict/snippets/javascript";
 import "ace-builds/src-noconflict/snippets/r";
+import "ace-builds/src-noconflict/snippets/scss";
+import "ace-builds/src-noconflict/snippets/text";
+import "ace-builds/src-noconflict/snippets/typescript";
+import "ace-builds/src-noconflict/snippets/yaml";
+
 
 import "ace-builds/src-noconflict/mode-css";
 import "ace-builds/src-noconflict/mode-html";
@@ -38,6 +47,7 @@ import "ace-builds/src-noconflict/mode-rhtml";
 import "ace-builds/src-noconflict/mode-scss";
 import "ace-builds/src-noconflict/mode-text";
 import "ace-builds/src-noconflict/mode-typescript";
+import "ace-builds/src-noconflict/mode-yaml";
 
 import "ace-builds/src-noconflict/theme-cobalt";
 /*----------------------------------------------------------------------------*/

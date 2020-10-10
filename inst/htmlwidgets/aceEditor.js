@@ -14699,6 +14699,1348 @@ ace.define("ace/mode/typescript", ["require", "exports", "module", "ace/lib/oop"
 
 /***/ }),
 
+/***/ "./node_modules/ace-builds/src-noconflict/mode-yaml.js":
+/*!*************************************************************!*\
+  !*** ./node_modules/ace-builds/src-noconflict/mode-yaml.js ***!
+  \*************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+ace.define("ace/mode/yaml_highlight_rules", ["require", "exports", "module", "ace/lib/oop", "ace/mode/text_highlight_rules"], function (require, exports, module) {
+  "use strict";
+
+  var oop = require("../lib/oop");
+
+  var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+
+  var YamlHighlightRules = function YamlHighlightRules() {
+    this.$rules = {
+      "start": [{
+        token: "comment",
+        regex: "#.*$"
+      }, {
+        token: "list.markup",
+        regex: /^(?:-{3}|\.{3})\s*(?=#|$)/
+      }, {
+        token: "list.markup",
+        regex: /^\s*[\-?](?:$|\s)/
+      }, {
+        token: "constant",
+        regex: "!![\\w//]+"
+      }, {
+        token: "constant.language",
+        regex: "[&\\*][a-zA-Z0-9-_]+"
+      }, {
+        token: ["meta.tag", "keyword"],
+        regex: /^(\s*\w.*?)(:(?=\s|$))/
+      }, {
+        token: ["meta.tag", "keyword"],
+        regex: /(\w+?)(\s*:(?=\s|$))/
+      }, {
+        token: "keyword.operator",
+        regex: "<<\\w*:\\w*"
+      }, {
+        token: "keyword.operator",
+        regex: "-\\s*(?=[{])"
+      }, {
+        token: "string",
+        // single line
+        regex: '["](?:(?:\\\\.)|(?:[^"\\\\]))*?["]'
+      }, {
+        token: "string",
+        // multi line string start
+        regex: /[|>][-+\d]*(?:$|\s+(?:$|#))/,
+        onMatch: function onMatch(val, state, stack, line) {
+          line = line.replace(/ #.*/, "");
+          var indent = /^ *((:\s*)?-(\s*[^|>])?)?/.exec(line)[0].replace(/\S\s*$/, "").length;
+          var indentationIndicator = parseInt(/\d+[\s+-]*$/.exec(line));
+
+          if (indentationIndicator) {
+            indent += indentationIndicator - 1;
+            this.next = "mlString";
+          } else {
+            this.next = "mlStringPre";
+          }
+
+          if (!stack.length) {
+            stack.push(this.next);
+            stack.push(indent);
+          } else {
+            stack[0] = this.next;
+            stack[1] = indent;
+          }
+
+          return this.token;
+        },
+        next: "mlString"
+      }, {
+        token: "string",
+        // single quoted string
+        regex: "['](?:(?:\\\\.)|(?:[^'\\\\]))*?[']"
+      }, {
+        token: "constant.numeric",
+        // float
+        regex: /(\b|[+\-\.])[\d_]+(?:(?:\.[\d_]*)?(?:[eE][+\-]?[\d_]+)?)(?=[^\d-\w]|$)/
+      }, {
+        token: "constant.numeric",
+        // other number
+        regex: /[+\-]?\.inf\b|NaN\b|0x[\dA-Fa-f_]+|0b[10_]+/
+      }, {
+        token: "constant.language.boolean",
+        regex: "\\b(?:true|false|TRUE|FALSE|True|False|yes|no)\\b"
+      }, {
+        token: "paren.lparen",
+        regex: "[[({]"
+      }, {
+        token: "paren.rparen",
+        regex: "[\\])}]"
+      }, {
+        token: "text",
+        regex: /[^\s,:\[\]\{\}]+/
+      }],
+      "mlStringPre": [{
+        token: "indent",
+        regex: /^ *$/
+      }, {
+        token: "indent",
+        regex: /^ */,
+        onMatch: function onMatch(val, state, stack) {
+          var curIndent = stack[1];
+
+          if (curIndent >= val.length) {
+            this.next = "start";
+            stack.shift();
+            stack.shift();
+          } else {
+            stack[1] = val.length - 1;
+            this.next = stack[0] = "mlString";
+          }
+
+          return this.token;
+        },
+        next: "mlString"
+      }, {
+        defaultToken: "string"
+      }],
+      "mlString": [{
+        token: "indent",
+        regex: /^ *$/
+      }, {
+        token: "indent",
+        regex: /^ */,
+        onMatch: function onMatch(val, state, stack) {
+          var curIndent = stack[1];
+
+          if (curIndent >= val.length) {
+            this.next = "start";
+            stack.splice(0);
+          } else {
+            this.next = "mlString";
+          }
+
+          return this.token;
+        },
+        next: "mlString"
+      }, {
+        token: "string",
+        regex: '.+'
+      }]
+    };
+    this.normalizeRules();
+  };
+
+  oop.inherits(YamlHighlightRules, TextHighlightRules);
+  exports.YamlHighlightRules = YamlHighlightRules;
+});
+ace.define("ace/mode/matching_brace_outdent", ["require", "exports", "module", "ace/range"], function (require, exports, module) {
+  "use strict";
+
+  var Range = require("../range").Range;
+
+  var MatchingBraceOutdent = function MatchingBraceOutdent() {};
+
+  (function () {
+    this.checkOutdent = function (line, input) {
+      if (!/^\s+$/.test(line)) return false;
+      return /^\s*\}/.test(input);
+    };
+
+    this.autoOutdent = function (doc, row) {
+      var line = doc.getLine(row);
+      var match = line.match(/^(\s*\})/);
+      if (!match) return 0;
+      var column = match[1].length;
+      var openBracePos = doc.findMatchingBracket({
+        row: row,
+        column: column
+      });
+      if (!openBracePos || openBracePos.row == row) return 0;
+      var indent = this.$getIndent(doc.getLine(openBracePos.row));
+      doc.replace(new Range(row, 0, row, column - 1), indent);
+    };
+
+    this.$getIndent = function (line) {
+      return line.match(/^\s*/)[0];
+    };
+  }).call(MatchingBraceOutdent.prototype);
+  exports.MatchingBraceOutdent = MatchingBraceOutdent;
+});
+ace.define("ace/mode/folding/coffee", ["require", "exports", "module", "ace/lib/oop", "ace/mode/folding/fold_mode", "ace/range"], function (require, exports, module) {
+  "use strict";
+
+  var oop = require("../../lib/oop");
+
+  var BaseFoldMode = require("./fold_mode").FoldMode;
+
+  var Range = require("../../range").Range;
+
+  var FoldMode = exports.FoldMode = function () {};
+
+  oop.inherits(FoldMode, BaseFoldMode);
+  (function () {
+    this.getFoldWidgetRange = function (session, foldStyle, row) {
+      var range = this.indentationBlock(session, row);
+      if (range) return range;
+      var re = /\S/;
+      var line = session.getLine(row);
+      var startLevel = line.search(re);
+      if (startLevel == -1 || line[startLevel] != "#") return;
+      var startColumn = line.length;
+      var maxRow = session.getLength();
+      var startRow = row;
+      var endRow = row;
+
+      while (++row < maxRow) {
+        line = session.getLine(row);
+        var level = line.search(re);
+        if (level == -1) continue;
+        if (line[level] != "#") break;
+        endRow = row;
+      }
+
+      if (endRow > startRow) {
+        var endColumn = session.getLine(endRow).length;
+        return new Range(startRow, startColumn, endRow, endColumn);
+      }
+    };
+
+    this.getFoldWidget = function (session, foldStyle, row) {
+      var line = session.getLine(row);
+      var indent = line.search(/\S/);
+      var next = session.getLine(row + 1);
+      var prev = session.getLine(row - 1);
+      var prevIndent = prev.search(/\S/);
+      var nextIndent = next.search(/\S/);
+
+      if (indent == -1) {
+        session.foldWidgets[row - 1] = prevIndent != -1 && prevIndent < nextIndent ? "start" : "";
+        return "";
+      }
+
+      if (prevIndent == -1) {
+        if (indent == nextIndent && line[indent] == "#" && next[indent] == "#") {
+          session.foldWidgets[row - 1] = "";
+          session.foldWidgets[row + 1] = "";
+          return "start";
+        }
+      } else if (prevIndent == indent && line[indent] == "#" && prev[indent] == "#") {
+        if (session.getLine(row - 2).search(/\S/) == -1) {
+          session.foldWidgets[row - 1] = "start";
+          session.foldWidgets[row + 1] = "";
+          return "";
+        }
+      }
+
+      if (prevIndent != -1 && prevIndent < indent) session.foldWidgets[row - 1] = "start";else session.foldWidgets[row - 1] = "";
+      if (indent < nextIndent) return "start";else return "";
+    };
+  }).call(FoldMode.prototype);
+});
+ace.define("ace/mode/yaml", ["require", "exports", "module", "ace/lib/oop", "ace/mode/text", "ace/mode/yaml_highlight_rules", "ace/mode/matching_brace_outdent", "ace/mode/folding/coffee"], function (require, exports, module) {
+  "use strict";
+
+  var oop = require("../lib/oop");
+
+  var TextMode = require("./text").Mode;
+
+  var YamlHighlightRules = require("./yaml_highlight_rules").YamlHighlightRules;
+
+  var MatchingBraceOutdent = require("./matching_brace_outdent").MatchingBraceOutdent;
+
+  var FoldMode = require("./folding/coffee").FoldMode;
+
+  var Mode = function Mode() {
+    this.HighlightRules = YamlHighlightRules;
+    this.$outdent = new MatchingBraceOutdent();
+    this.foldingRules = new FoldMode();
+    this.$behaviour = this.$defaultBehaviour;
+  };
+
+  oop.inherits(Mode, TextMode);
+  (function () {
+    this.lineCommentStart = ["#"];
+
+    this.getNextLineIndent = function (state, line, tab) {
+      var indent = this.$getIndent(line);
+
+      if (state == "start") {
+        var match = line.match(/^.*[\{\(\[]\s*$/);
+
+        if (match) {
+          indent += tab;
+        }
+      }
+
+      return indent;
+    };
+
+    this.checkOutdent = function (state, line, input) {
+      return this.$outdent.checkOutdent(line, input);
+    };
+
+    this.autoOutdent = function (state, doc, row) {
+      this.$outdent.autoOutdent(doc, row);
+    };
+
+    this.$id = "ace/mode/yaml";
+  }).call(Mode.prototype);
+  exports.Mode = Mode;
+});
+
+(function () {
+  ace.require(["ace/mode/yaml"], function (m) {
+    if (( false ? undefined : _typeof(module)) == "object" && ( false ? undefined : _typeof(exports)) == "object" && module) {
+      module.exports = m;
+    }
+  });
+})();
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../webpack/buildin/module.js */ "./node_modules/webpack/buildin/module.js")(module)))
+
+/***/ }),
+
+/***/ "./node_modules/ace-builds/src-noconflict/snippets/css.js":
+/*!****************************************************************!*\
+  !*** ./node_modules/ace-builds/src-noconflict/snippets/css.js ***!
+  \****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+ace.define("ace/snippets/css", ["require", "exports", "module"], function (require, exports, module) {
+  "use strict";
+
+  exports.snippetText = "snippet .\n\
+	${1} {\n\
+		${2}\n\
+	}\n\
+snippet !\n\
+	 !important\n\
+snippet bdi:m+\n\
+	-moz-border-image: url(${1}) ${2:0} ${3:0} ${4:0} ${5:0} ${6:stretch} ${7:stretch};\n\
+snippet bdi:m\n\
+	-moz-border-image: ${1};\n\
+snippet bdrz:m\n\
+	-moz-border-radius: ${1};\n\
+snippet bxsh:m+\n\
+	-moz-box-shadow: ${1:0} ${2:0} ${3:0} #${4:000};\n\
+snippet bxsh:m\n\
+	-moz-box-shadow: ${1};\n\
+snippet bdi:w+\n\
+	-webkit-border-image: url(${1}) ${2:0} ${3:0} ${4:0} ${5:0} ${6:stretch} ${7:stretch};\n\
+snippet bdi:w\n\
+	-webkit-border-image: ${1};\n\
+snippet bdrz:w\n\
+	-webkit-border-radius: ${1};\n\
+snippet bxsh:w+\n\
+	-webkit-box-shadow: ${1:0} ${2:0} ${3:0} #${4:000};\n\
+snippet bxsh:w\n\
+	-webkit-box-shadow: ${1};\n\
+snippet @f\n\
+	@font-face {\n\
+		font-family: ${1};\n\
+		src: url(${2});\n\
+	}\n\
+snippet @i\n\
+	@import url(${1});\n\
+snippet @m\n\
+	@media ${1:print} {\n\
+		${2}\n\
+	}\n\
+snippet bg+\n\
+	background: #${1:FFF} url(${2}) ${3:0} ${4:0} ${5:no-repeat};\n\
+snippet bga\n\
+	background-attachment: ${1};\n\
+snippet bga:f\n\
+	background-attachment: fixed;\n\
+snippet bga:s\n\
+	background-attachment: scroll;\n\
+snippet bgbk\n\
+	background-break: ${1};\n\
+snippet bgbk:bb\n\
+	background-break: bounding-box;\n\
+snippet bgbk:c\n\
+	background-break: continuous;\n\
+snippet bgbk:eb\n\
+	background-break: each-box;\n\
+snippet bgcp\n\
+	background-clip: ${1};\n\
+snippet bgcp:bb\n\
+	background-clip: border-box;\n\
+snippet bgcp:cb\n\
+	background-clip: content-box;\n\
+snippet bgcp:nc\n\
+	background-clip: no-clip;\n\
+snippet bgcp:pb\n\
+	background-clip: padding-box;\n\
+snippet bgc\n\
+	background-color: #${1:FFF};\n\
+snippet bgc:t\n\
+	background-color: transparent;\n\
+snippet bgi\n\
+	background-image: url(${1});\n\
+snippet bgi:n\n\
+	background-image: none;\n\
+snippet bgo\n\
+	background-origin: ${1};\n\
+snippet bgo:bb\n\
+	background-origin: border-box;\n\
+snippet bgo:cb\n\
+	background-origin: content-box;\n\
+snippet bgo:pb\n\
+	background-origin: padding-box;\n\
+snippet bgpx\n\
+	background-position-x: ${1};\n\
+snippet bgpy\n\
+	background-position-y: ${1};\n\
+snippet bgp\n\
+	background-position: ${1:0} ${2:0};\n\
+snippet bgr\n\
+	background-repeat: ${1};\n\
+snippet bgr:n\n\
+	background-repeat: no-repeat;\n\
+snippet bgr:x\n\
+	background-repeat: repeat-x;\n\
+snippet bgr:y\n\
+	background-repeat: repeat-y;\n\
+snippet bgr:r\n\
+	background-repeat: repeat;\n\
+snippet bgz\n\
+	background-size: ${1};\n\
+snippet bgz:a\n\
+	background-size: auto;\n\
+snippet bgz:ct\n\
+	background-size: contain;\n\
+snippet bgz:cv\n\
+	background-size: cover;\n\
+snippet bg\n\
+	background: ${1};\n\
+snippet bg:ie\n\
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='${1}',sizingMethod='${2:crop}');\n\
+snippet bg:n\n\
+	background: none;\n\
+snippet bd+\n\
+	border: ${1:1px} ${2:solid} #${3:000};\n\
+snippet bdb+\n\
+	border-bottom: ${1:1px} ${2:solid} #${3:000};\n\
+snippet bdbc\n\
+	border-bottom-color: #${1:000};\n\
+snippet bdbi\n\
+	border-bottom-image: url(${1});\n\
+snippet bdbi:n\n\
+	border-bottom-image: none;\n\
+snippet bdbli\n\
+	border-bottom-left-image: url(${1});\n\
+snippet bdbli:c\n\
+	border-bottom-left-image: continue;\n\
+snippet bdbli:n\n\
+	border-bottom-left-image: none;\n\
+snippet bdblrz\n\
+	border-bottom-left-radius: ${1};\n\
+snippet bdbri\n\
+	border-bottom-right-image: url(${1});\n\
+snippet bdbri:c\n\
+	border-bottom-right-image: continue;\n\
+snippet bdbri:n\n\
+	border-bottom-right-image: none;\n\
+snippet bdbrrz\n\
+	border-bottom-right-radius: ${1};\n\
+snippet bdbs\n\
+	border-bottom-style: ${1};\n\
+snippet bdbs:n\n\
+	border-bottom-style: none;\n\
+snippet bdbw\n\
+	border-bottom-width: ${1};\n\
+snippet bdb\n\
+	border-bottom: ${1};\n\
+snippet bdb:n\n\
+	border-bottom: none;\n\
+snippet bdbk\n\
+	border-break: ${1};\n\
+snippet bdbk:c\n\
+	border-break: close;\n\
+snippet bdcl\n\
+	border-collapse: ${1};\n\
+snippet bdcl:c\n\
+	border-collapse: collapse;\n\
+snippet bdcl:s\n\
+	border-collapse: separate;\n\
+snippet bdc\n\
+	border-color: #${1:000};\n\
+snippet bdci\n\
+	border-corner-image: url(${1});\n\
+snippet bdci:c\n\
+	border-corner-image: continue;\n\
+snippet bdci:n\n\
+	border-corner-image: none;\n\
+snippet bdf\n\
+	border-fit: ${1};\n\
+snippet bdf:c\n\
+	border-fit: clip;\n\
+snippet bdf:of\n\
+	border-fit: overwrite;\n\
+snippet bdf:ow\n\
+	border-fit: overwrite;\n\
+snippet bdf:r\n\
+	border-fit: repeat;\n\
+snippet bdf:sc\n\
+	border-fit: scale;\n\
+snippet bdf:sp\n\
+	border-fit: space;\n\
+snippet bdf:st\n\
+	border-fit: stretch;\n\
+snippet bdi\n\
+	border-image: url(${1}) ${2:0} ${3:0} ${4:0} ${5:0} ${6:stretch} ${7:stretch};\n\
+snippet bdi:n\n\
+	border-image: none;\n\
+snippet bdl+\n\
+	border-left: ${1:1px} ${2:solid} #${3:000};\n\
+snippet bdlc\n\
+	border-left-color: #${1:000};\n\
+snippet bdli\n\
+	border-left-image: url(${1});\n\
+snippet bdli:n\n\
+	border-left-image: none;\n\
+snippet bdls\n\
+	border-left-style: ${1};\n\
+snippet bdls:n\n\
+	border-left-style: none;\n\
+snippet bdlw\n\
+	border-left-width: ${1};\n\
+snippet bdl\n\
+	border-left: ${1};\n\
+snippet bdl:n\n\
+	border-left: none;\n\
+snippet bdlt\n\
+	border-length: ${1};\n\
+snippet bdlt:a\n\
+	border-length: auto;\n\
+snippet bdrz\n\
+	border-radius: ${1};\n\
+snippet bdr+\n\
+	border-right: ${1:1px} ${2:solid} #${3:000};\n\
+snippet bdrc\n\
+	border-right-color: #${1:000};\n\
+snippet bdri\n\
+	border-right-image: url(${1});\n\
+snippet bdri:n\n\
+	border-right-image: none;\n\
+snippet bdrs\n\
+	border-right-style: ${1};\n\
+snippet bdrs:n\n\
+	border-right-style: none;\n\
+snippet bdrw\n\
+	border-right-width: ${1};\n\
+snippet bdr\n\
+	border-right: ${1};\n\
+snippet bdr:n\n\
+	border-right: none;\n\
+snippet bdsp\n\
+	border-spacing: ${1};\n\
+snippet bds\n\
+	border-style: ${1};\n\
+snippet bds:ds\n\
+	border-style: dashed;\n\
+snippet bds:dtds\n\
+	border-style: dot-dash;\n\
+snippet bds:dtdtds\n\
+	border-style: dot-dot-dash;\n\
+snippet bds:dt\n\
+	border-style: dotted;\n\
+snippet bds:db\n\
+	border-style: double;\n\
+snippet bds:g\n\
+	border-style: groove;\n\
+snippet bds:h\n\
+	border-style: hidden;\n\
+snippet bds:i\n\
+	border-style: inset;\n\
+snippet bds:n\n\
+	border-style: none;\n\
+snippet bds:o\n\
+	border-style: outset;\n\
+snippet bds:r\n\
+	border-style: ridge;\n\
+snippet bds:s\n\
+	border-style: solid;\n\
+snippet bds:w\n\
+	border-style: wave;\n\
+snippet bdt+\n\
+	border-top: ${1:1px} ${2:solid} #${3:000};\n\
+snippet bdtc\n\
+	border-top-color: #${1:000};\n\
+snippet bdti\n\
+	border-top-image: url(${1});\n\
+snippet bdti:n\n\
+	border-top-image: none;\n\
+snippet bdtli\n\
+	border-top-left-image: url(${1});\n\
+snippet bdtli:c\n\
+	border-corner-image: continue;\n\
+snippet bdtli:n\n\
+	border-corner-image: none;\n\
+snippet bdtlrz\n\
+	border-top-left-radius: ${1};\n\
+snippet bdtri\n\
+	border-top-right-image: url(${1});\n\
+snippet bdtri:c\n\
+	border-top-right-image: continue;\n\
+snippet bdtri:n\n\
+	border-top-right-image: none;\n\
+snippet bdtrrz\n\
+	border-top-right-radius: ${1};\n\
+snippet bdts\n\
+	border-top-style: ${1};\n\
+snippet bdts:n\n\
+	border-top-style: none;\n\
+snippet bdtw\n\
+	border-top-width: ${1};\n\
+snippet bdt\n\
+	border-top: ${1};\n\
+snippet bdt:n\n\
+	border-top: none;\n\
+snippet bdw\n\
+	border-width: ${1};\n\
+snippet bd\n\
+	border: ${1};\n\
+snippet bd:n\n\
+	border: none;\n\
+snippet b\n\
+	bottom: ${1};\n\
+snippet b:a\n\
+	bottom: auto;\n\
+snippet bxsh+\n\
+	box-shadow: ${1:0} ${2:0} ${3:0} #${4:000};\n\
+snippet bxsh\n\
+	box-shadow: ${1};\n\
+snippet bxsh:n\n\
+	box-shadow: none;\n\
+snippet bxz\n\
+	box-sizing: ${1};\n\
+snippet bxz:bb\n\
+	box-sizing: border-box;\n\
+snippet bxz:cb\n\
+	box-sizing: content-box;\n\
+snippet cps\n\
+	caption-side: ${1};\n\
+snippet cps:b\n\
+	caption-side: bottom;\n\
+snippet cps:t\n\
+	caption-side: top;\n\
+snippet cl\n\
+	clear: ${1};\n\
+snippet cl:b\n\
+	clear: both;\n\
+snippet cl:l\n\
+	clear: left;\n\
+snippet cl:n\n\
+	clear: none;\n\
+snippet cl:r\n\
+	clear: right;\n\
+snippet cp\n\
+	clip: ${1};\n\
+snippet cp:a\n\
+	clip: auto;\n\
+snippet cp:r\n\
+	clip: rect(${1:0} ${2:0} ${3:0} ${4:0});\n\
+snippet c\n\
+	color: #${1:000};\n\
+snippet ct\n\
+	content: ${1};\n\
+snippet ct:a\n\
+	content: attr(${1});\n\
+snippet ct:cq\n\
+	content: close-quote;\n\
+snippet ct:c\n\
+	content: counter(${1});\n\
+snippet ct:cs\n\
+	content: counters(${1});\n\
+snippet ct:ncq\n\
+	content: no-close-quote;\n\
+snippet ct:noq\n\
+	content: no-open-quote;\n\
+snippet ct:n\n\
+	content: normal;\n\
+snippet ct:oq\n\
+	content: open-quote;\n\
+snippet coi\n\
+	counter-increment: ${1};\n\
+snippet cor\n\
+	counter-reset: ${1};\n\
+snippet cur\n\
+	cursor: ${1};\n\
+snippet cur:a\n\
+	cursor: auto;\n\
+snippet cur:c\n\
+	cursor: crosshair;\n\
+snippet cur:d\n\
+	cursor: default;\n\
+snippet cur:ha\n\
+	cursor: hand;\n\
+snippet cur:he\n\
+	cursor: help;\n\
+snippet cur:m\n\
+	cursor: move;\n\
+snippet cur:p\n\
+	cursor: pointer;\n\
+snippet cur:t\n\
+	cursor: text;\n\
+snippet d\n\
+	display: ${1};\n\
+snippet d:mib\n\
+	display: -moz-inline-box;\n\
+snippet d:mis\n\
+	display: -moz-inline-stack;\n\
+snippet d:b\n\
+	display: block;\n\
+snippet d:cp\n\
+	display: compact;\n\
+snippet d:ib\n\
+	display: inline-block;\n\
+snippet d:itb\n\
+	display: inline-table;\n\
+snippet d:i\n\
+	display: inline;\n\
+snippet d:li\n\
+	display: list-item;\n\
+snippet d:n\n\
+	display: none;\n\
+snippet d:ri\n\
+	display: run-in;\n\
+snippet d:tbcp\n\
+	display: table-caption;\n\
+snippet d:tbc\n\
+	display: table-cell;\n\
+snippet d:tbclg\n\
+	display: table-column-group;\n\
+snippet d:tbcl\n\
+	display: table-column;\n\
+snippet d:tbfg\n\
+	display: table-footer-group;\n\
+snippet d:tbhg\n\
+	display: table-header-group;\n\
+snippet d:tbrg\n\
+	display: table-row-group;\n\
+snippet d:tbr\n\
+	display: table-row;\n\
+snippet d:tb\n\
+	display: table;\n\
+snippet ec\n\
+	empty-cells: ${1};\n\
+snippet ec:h\n\
+	empty-cells: hide;\n\
+snippet ec:s\n\
+	empty-cells: show;\n\
+snippet exp\n\
+	expression()\n\
+snippet fl\n\
+	float: ${1};\n\
+snippet fl:l\n\
+	float: left;\n\
+snippet fl:n\n\
+	float: none;\n\
+snippet fl:r\n\
+	float: right;\n\
+snippet f+\n\
+	font: ${1:1em} ${2:Arial},${3:sans-serif};\n\
+snippet fef\n\
+	font-effect: ${1};\n\
+snippet fef:eb\n\
+	font-effect: emboss;\n\
+snippet fef:eg\n\
+	font-effect: engrave;\n\
+snippet fef:n\n\
+	font-effect: none;\n\
+snippet fef:o\n\
+	font-effect: outline;\n\
+snippet femp\n\
+	font-emphasize-position: ${1};\n\
+snippet femp:a\n\
+	font-emphasize-position: after;\n\
+snippet femp:b\n\
+	font-emphasize-position: before;\n\
+snippet fems\n\
+	font-emphasize-style: ${1};\n\
+snippet fems:ac\n\
+	font-emphasize-style: accent;\n\
+snippet fems:c\n\
+	font-emphasize-style: circle;\n\
+snippet fems:ds\n\
+	font-emphasize-style: disc;\n\
+snippet fems:dt\n\
+	font-emphasize-style: dot;\n\
+snippet fems:n\n\
+	font-emphasize-style: none;\n\
+snippet fem\n\
+	font-emphasize: ${1};\n\
+snippet ff\n\
+	font-family: ${1};\n\
+snippet ff:c\n\
+	font-family: ${1:'Monotype Corsiva','Comic Sans MS'},cursive;\n\
+snippet ff:f\n\
+	font-family: ${1:Capitals,Impact},fantasy;\n\
+snippet ff:m\n\
+	font-family: ${1:Monaco,'Courier New'},monospace;\n\
+snippet ff:ss\n\
+	font-family: ${1:Helvetica,Arial},sans-serif;\n\
+snippet ff:s\n\
+	font-family: ${1:Georgia,'Times New Roman'},serif;\n\
+snippet fza\n\
+	font-size-adjust: ${1};\n\
+snippet fza:n\n\
+	font-size-adjust: none;\n\
+snippet fz\n\
+	font-size: ${1};\n\
+snippet fsm\n\
+	font-smooth: ${1};\n\
+snippet fsm:aw\n\
+	font-smooth: always;\n\
+snippet fsm:a\n\
+	font-smooth: auto;\n\
+snippet fsm:n\n\
+	font-smooth: never;\n\
+snippet fst\n\
+	font-stretch: ${1};\n\
+snippet fst:c\n\
+	font-stretch: condensed;\n\
+snippet fst:e\n\
+	font-stretch: expanded;\n\
+snippet fst:ec\n\
+	font-stretch: extra-condensed;\n\
+snippet fst:ee\n\
+	font-stretch: extra-expanded;\n\
+snippet fst:n\n\
+	font-stretch: normal;\n\
+snippet fst:sc\n\
+	font-stretch: semi-condensed;\n\
+snippet fst:se\n\
+	font-stretch: semi-expanded;\n\
+snippet fst:uc\n\
+	font-stretch: ultra-condensed;\n\
+snippet fst:ue\n\
+	font-stretch: ultra-expanded;\n\
+snippet fs\n\
+	font-style: ${1};\n\
+snippet fs:i\n\
+	font-style: italic;\n\
+snippet fs:n\n\
+	font-style: normal;\n\
+snippet fs:o\n\
+	font-style: oblique;\n\
+snippet fv\n\
+	font-variant: ${1};\n\
+snippet fv:n\n\
+	font-variant: normal;\n\
+snippet fv:sc\n\
+	font-variant: small-caps;\n\
+snippet fw\n\
+	font-weight: ${1};\n\
+snippet fw:b\n\
+	font-weight: bold;\n\
+snippet fw:br\n\
+	font-weight: bolder;\n\
+snippet fw:lr\n\
+	font-weight: lighter;\n\
+snippet fw:n\n\
+	font-weight: normal;\n\
+snippet f\n\
+	font: ${1};\n\
+snippet h\n\
+	height: ${1};\n\
+snippet h:a\n\
+	height: auto;\n\
+snippet l\n\
+	left: ${1};\n\
+snippet l:a\n\
+	left: auto;\n\
+snippet lts\n\
+	letter-spacing: ${1};\n\
+snippet lh\n\
+	line-height: ${1};\n\
+snippet lisi\n\
+	list-style-image: url(${1});\n\
+snippet lisi:n\n\
+	list-style-image: none;\n\
+snippet lisp\n\
+	list-style-position: ${1};\n\
+snippet lisp:i\n\
+	list-style-position: inside;\n\
+snippet lisp:o\n\
+	list-style-position: outside;\n\
+snippet list\n\
+	list-style-type: ${1};\n\
+snippet list:c\n\
+	list-style-type: circle;\n\
+snippet list:dclz\n\
+	list-style-type: decimal-leading-zero;\n\
+snippet list:dc\n\
+	list-style-type: decimal;\n\
+snippet list:d\n\
+	list-style-type: disc;\n\
+snippet list:lr\n\
+	list-style-type: lower-roman;\n\
+snippet list:n\n\
+	list-style-type: none;\n\
+snippet list:s\n\
+	list-style-type: square;\n\
+snippet list:ur\n\
+	list-style-type: upper-roman;\n\
+snippet lis\n\
+	list-style: ${1};\n\
+snippet lis:n\n\
+	list-style: none;\n\
+snippet mb\n\
+	margin-bottom: ${1};\n\
+snippet mb:a\n\
+	margin-bottom: auto;\n\
+snippet ml\n\
+	margin-left: ${1};\n\
+snippet ml:a\n\
+	margin-left: auto;\n\
+snippet mr\n\
+	margin-right: ${1};\n\
+snippet mr:a\n\
+	margin-right: auto;\n\
+snippet mt\n\
+	margin-top: ${1};\n\
+snippet mt:a\n\
+	margin-top: auto;\n\
+snippet m\n\
+	margin: ${1};\n\
+snippet m:4\n\
+	margin: ${1:0} ${2:0} ${3:0} ${4:0};\n\
+snippet m:3\n\
+	margin: ${1:0} ${2:0} ${3:0};\n\
+snippet m:2\n\
+	margin: ${1:0} ${2:0};\n\
+snippet m:0\n\
+	margin: 0;\n\
+snippet m:a\n\
+	margin: auto;\n\
+snippet mah\n\
+	max-height: ${1};\n\
+snippet mah:n\n\
+	max-height: none;\n\
+snippet maw\n\
+	max-width: ${1};\n\
+snippet maw:n\n\
+	max-width: none;\n\
+snippet mih\n\
+	min-height: ${1};\n\
+snippet miw\n\
+	min-width: ${1};\n\
+snippet op\n\
+	opacity: ${1};\n\
+snippet op:ie\n\
+	filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=${1:100});\n\
+snippet op:ms\n\
+	-ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=${1:100})';\n\
+snippet orp\n\
+	orphans: ${1};\n\
+snippet o+\n\
+	outline: ${1:1px} ${2:solid} #${3:000};\n\
+snippet oc\n\
+	outline-color: ${1:#000};\n\
+snippet oc:i\n\
+	outline-color: invert;\n\
+snippet oo\n\
+	outline-offset: ${1};\n\
+snippet os\n\
+	outline-style: ${1};\n\
+snippet ow\n\
+	outline-width: ${1};\n\
+snippet o\n\
+	outline: ${1};\n\
+snippet o:n\n\
+	outline: none;\n\
+snippet ovs\n\
+	overflow-style: ${1};\n\
+snippet ovs:a\n\
+	overflow-style: auto;\n\
+snippet ovs:mq\n\
+	overflow-style: marquee;\n\
+snippet ovs:mv\n\
+	overflow-style: move;\n\
+snippet ovs:p\n\
+	overflow-style: panner;\n\
+snippet ovs:s\n\
+	overflow-style: scrollbar;\n\
+snippet ovx\n\
+	overflow-x: ${1};\n\
+snippet ovx:a\n\
+	overflow-x: auto;\n\
+snippet ovx:h\n\
+	overflow-x: hidden;\n\
+snippet ovx:s\n\
+	overflow-x: scroll;\n\
+snippet ovx:v\n\
+	overflow-x: visible;\n\
+snippet ovy\n\
+	overflow-y: ${1};\n\
+snippet ovy:a\n\
+	overflow-y: auto;\n\
+snippet ovy:h\n\
+	overflow-y: hidden;\n\
+snippet ovy:s\n\
+	overflow-y: scroll;\n\
+snippet ovy:v\n\
+	overflow-y: visible;\n\
+snippet ov\n\
+	overflow: ${1};\n\
+snippet ov:a\n\
+	overflow: auto;\n\
+snippet ov:h\n\
+	overflow: hidden;\n\
+snippet ov:s\n\
+	overflow: scroll;\n\
+snippet ov:v\n\
+	overflow: visible;\n\
+snippet pb\n\
+	padding-bottom: ${1};\n\
+snippet pl\n\
+	padding-left: ${1};\n\
+snippet pr\n\
+	padding-right: ${1};\n\
+snippet pt\n\
+	padding-top: ${1};\n\
+snippet p\n\
+	padding: ${1};\n\
+snippet p:4\n\
+	padding: ${1:0} ${2:0} ${3:0} ${4:0};\n\
+snippet p:3\n\
+	padding: ${1:0} ${2:0} ${3:0};\n\
+snippet p:2\n\
+	padding: ${1:0} ${2:0};\n\
+snippet p:0\n\
+	padding: 0;\n\
+snippet pgba\n\
+	page-break-after: ${1};\n\
+snippet pgba:aw\n\
+	page-break-after: always;\n\
+snippet pgba:a\n\
+	page-break-after: auto;\n\
+snippet pgba:l\n\
+	page-break-after: left;\n\
+snippet pgba:r\n\
+	page-break-after: right;\n\
+snippet pgbb\n\
+	page-break-before: ${1};\n\
+snippet pgbb:aw\n\
+	page-break-before: always;\n\
+snippet pgbb:a\n\
+	page-break-before: auto;\n\
+snippet pgbb:l\n\
+	page-break-before: left;\n\
+snippet pgbb:r\n\
+	page-break-before: right;\n\
+snippet pgbi\n\
+	page-break-inside: ${1};\n\
+snippet pgbi:a\n\
+	page-break-inside: auto;\n\
+snippet pgbi:av\n\
+	page-break-inside: avoid;\n\
+snippet pos\n\
+	position: ${1};\n\
+snippet pos:a\n\
+	position: absolute;\n\
+snippet pos:f\n\
+	position: fixed;\n\
+snippet pos:r\n\
+	position: relative;\n\
+snippet pos:s\n\
+	position: static;\n\
+snippet q\n\
+	quotes: ${1};\n\
+snippet q:en\n\
+	quotes: '\\201C' '\\201D' '\\2018' '\\2019';\n\
+snippet q:n\n\
+	quotes: none;\n\
+snippet q:ru\n\
+	quotes: '\\00AB' '\\00BB' '\\201E' '\\201C';\n\
+snippet rz\n\
+	resize: ${1};\n\
+snippet rz:b\n\
+	resize: both;\n\
+snippet rz:h\n\
+	resize: horizontal;\n\
+snippet rz:n\n\
+	resize: none;\n\
+snippet rz:v\n\
+	resize: vertical;\n\
+snippet r\n\
+	right: ${1};\n\
+snippet r:a\n\
+	right: auto;\n\
+snippet tbl\n\
+	table-layout: ${1};\n\
+snippet tbl:a\n\
+	table-layout: auto;\n\
+snippet tbl:f\n\
+	table-layout: fixed;\n\
+snippet tal\n\
+	text-align-last: ${1};\n\
+snippet tal:a\n\
+	text-align-last: auto;\n\
+snippet tal:c\n\
+	text-align-last: center;\n\
+snippet tal:l\n\
+	text-align-last: left;\n\
+snippet tal:r\n\
+	text-align-last: right;\n\
+snippet ta\n\
+	text-align: ${1};\n\
+snippet ta:c\n\
+	text-align: center;\n\
+snippet ta:l\n\
+	text-align: left;\n\
+snippet ta:r\n\
+	text-align: right;\n\
+snippet td\n\
+	text-decoration: ${1};\n\
+snippet td:l\n\
+	text-decoration: line-through;\n\
+snippet td:n\n\
+	text-decoration: none;\n\
+snippet td:o\n\
+	text-decoration: overline;\n\
+snippet td:u\n\
+	text-decoration: underline;\n\
+snippet te\n\
+	text-emphasis: ${1};\n\
+snippet te:ac\n\
+	text-emphasis: accent;\n\
+snippet te:a\n\
+	text-emphasis: after;\n\
+snippet te:b\n\
+	text-emphasis: before;\n\
+snippet te:c\n\
+	text-emphasis: circle;\n\
+snippet te:ds\n\
+	text-emphasis: disc;\n\
+snippet te:dt\n\
+	text-emphasis: dot;\n\
+snippet te:n\n\
+	text-emphasis: none;\n\
+snippet th\n\
+	text-height: ${1};\n\
+snippet th:a\n\
+	text-height: auto;\n\
+snippet th:f\n\
+	text-height: font-size;\n\
+snippet th:m\n\
+	text-height: max-size;\n\
+snippet th:t\n\
+	text-height: text-size;\n\
+snippet ti\n\
+	text-indent: ${1};\n\
+snippet ti:-\n\
+	text-indent: -9999px;\n\
+snippet tj\n\
+	text-justify: ${1};\n\
+snippet tj:a\n\
+	text-justify: auto;\n\
+snippet tj:d\n\
+	text-justify: distribute;\n\
+snippet tj:ic\n\
+	text-justify: inter-cluster;\n\
+snippet tj:ii\n\
+	text-justify: inter-ideograph;\n\
+snippet tj:iw\n\
+	text-justify: inter-word;\n\
+snippet tj:k\n\
+	text-justify: kashida;\n\
+snippet tj:t\n\
+	text-justify: tibetan;\n\
+snippet to+\n\
+	text-outline: ${1:0} ${2:0} #${3:000};\n\
+snippet to\n\
+	text-outline: ${1};\n\
+snippet to:n\n\
+	text-outline: none;\n\
+snippet tr\n\
+	text-replace: ${1};\n\
+snippet tr:n\n\
+	text-replace: none;\n\
+snippet tsh+\n\
+	text-shadow: ${1:0} ${2:0} ${3:0} #${4:000};\n\
+snippet tsh\n\
+	text-shadow: ${1};\n\
+snippet tsh:n\n\
+	text-shadow: none;\n\
+snippet tt\n\
+	text-transform: ${1};\n\
+snippet tt:c\n\
+	text-transform: capitalize;\n\
+snippet tt:l\n\
+	text-transform: lowercase;\n\
+snippet tt:n\n\
+	text-transform: none;\n\
+snippet tt:u\n\
+	text-transform: uppercase;\n\
+snippet tw\n\
+	text-wrap: ${1};\n\
+snippet tw:no\n\
+	text-wrap: none;\n\
+snippet tw:n\n\
+	text-wrap: normal;\n\
+snippet tw:s\n\
+	text-wrap: suppress;\n\
+snippet tw:u\n\
+	text-wrap: unrestricted;\n\
+snippet t\n\
+	top: ${1};\n\
+snippet t:a\n\
+	top: auto;\n\
+snippet va\n\
+	vertical-align: ${1};\n\
+snippet va:bl\n\
+	vertical-align: baseline;\n\
+snippet va:b\n\
+	vertical-align: bottom;\n\
+snippet va:m\n\
+	vertical-align: middle;\n\
+snippet va:sub\n\
+	vertical-align: sub;\n\
+snippet va:sup\n\
+	vertical-align: super;\n\
+snippet va:tb\n\
+	vertical-align: text-bottom;\n\
+snippet va:tt\n\
+	vertical-align: text-top;\n\
+snippet va:t\n\
+	vertical-align: top;\n\
+snippet v\n\
+	visibility: ${1};\n\
+snippet v:c\n\
+	visibility: collapse;\n\
+snippet v:h\n\
+	visibility: hidden;\n\
+snippet v:v\n\
+	visibility: visible;\n\
+snippet whsc\n\
+	white-space-collapse: ${1};\n\
+snippet whsc:ba\n\
+	white-space-collapse: break-all;\n\
+snippet whsc:bs\n\
+	white-space-collapse: break-strict;\n\
+snippet whsc:k\n\
+	white-space-collapse: keep-all;\n\
+snippet whsc:l\n\
+	white-space-collapse: loose;\n\
+snippet whsc:n\n\
+	white-space-collapse: normal;\n\
+snippet whs\n\
+	white-space: ${1};\n\
+snippet whs:n\n\
+	white-space: normal;\n\
+snippet whs:nw\n\
+	white-space: nowrap;\n\
+snippet whs:pl\n\
+	white-space: pre-line;\n\
+snippet whs:pw\n\
+	white-space: pre-wrap;\n\
+snippet whs:p\n\
+	white-space: pre;\n\
+snippet wid\n\
+	widows: ${1};\n\
+snippet w\n\
+	width: ${1};\n\
+snippet w:a\n\
+	width: auto;\n\
+snippet wob\n\
+	word-break: ${1};\n\
+snippet wob:ba\n\
+	word-break: break-all;\n\
+snippet wob:bs\n\
+	word-break: break-strict;\n\
+snippet wob:k\n\
+	word-break: keep-all;\n\
+snippet wob:l\n\
+	word-break: loose;\n\
+snippet wob:n\n\
+	word-break: normal;\n\
+snippet wos\n\
+	word-spacing: ${1};\n\
+snippet wow\n\
+	word-wrap: ${1};\n\
+snippet wow:no\n\
+	word-wrap: none;\n\
+snippet wow:n\n\
+	word-wrap: normal;\n\
+snippet wow:s\n\
+	word-wrap: suppress;\n\
+snippet wow:u\n\
+	word-wrap: unrestricted;\n\
+snippet z\n\
+	z-index: ${1};\n\
+snippet z:a\n\
+	z-index: auto;\n\
+snippet zoo\n\
+	zoom: 1;\n\
+";
+  exports.scope = "css";
+});
+
+(function () {
+  ace.require(["ace/snippets/css"], function (m) {
+    if (( false ? undefined : _typeof(module)) == "object" && ( false ? undefined : _typeof(exports)) == "object" && module) {
+      module.exports = m;
+    }
+  });
+})();
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../webpack/buildin/module.js */ "./node_modules/webpack/buildin/module.js")(module)))
+
+/***/ }),
+
+/***/ "./node_modules/ace-builds/src-noconflict/snippets/html.js":
+/*!*****************************************************************!*\
+  !*** ./node_modules/ace-builds/src-noconflict/snippets/html.js ***!
+  \*****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+ace.define("ace/snippets/html", ["require", "exports", "module"], function (require, exports, module) {
+  "use strict";
+
+  exports.snippetText = "# Some useful Unicode entities\n# Non-Breaking Space\nsnippet nbs\n\t&nbsp;\n# \u2190\nsnippet left\n\t&#x2190;\n# \u2192\nsnippet right\n\t&#x2192;\n# \u2191\nsnippet up\n\t&#x2191;\n# \u2193\nsnippet down\n\t&#x2193;\n# \u21A9\nsnippet return\n\t&#x21A9;\n# \u21E4\nsnippet backtab\n\t&#x21E4;\n# \u21E5\nsnippet tab\n\t&#x21E5;\n# \u21E7\nsnippet shift\n\t&#x21E7;\n# \u2303\nsnippet ctrl\n\t&#x2303;\n# \u2305\nsnippet enter\n\t&#x2305;\n# \u2318\nsnippet cmd\n\t&#x2318;\n# \u2325\nsnippet option\n\t&#x2325;\n# \u2326\nsnippet delete\n\t&#x2326;\n# \u232B\nsnippet backspace\n\t&#x232B;\n# \u238B\nsnippet esc\n\t&#x238B;\n# Generic Doctype\nsnippet doctype HTML 4.01 Strict\n\t<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n\t\"http://www.w3.org/TR/html4/strict.dtd\">\nsnippet doctype HTML 4.01 Transitional\n\t<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n\t\"http://www.w3.org/TR/html4/loose.dtd\">\nsnippet doctype HTML 5\n\t<!DOCTYPE HTML>\nsnippet doctype XHTML 1.0 Frameset\n\t<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n\t\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\nsnippet doctype XHTML 1.0 Strict\n\t<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n\t\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\nsnippet doctype XHTML 1.0 Transitional\n\t<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n\t\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\nsnippet doctype XHTML 1.1\n\t<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\n\t\"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n# HTML Doctype 4.01 Strict\nsnippet docts\n\t<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n\t\"http://www.w3.org/TR/html4/strict.dtd\">\n# HTML Doctype 4.01 Transitional\nsnippet doct\n\t<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n\t\"http://www.w3.org/TR/html4/loose.dtd\">\n# HTML Doctype 5\nsnippet doct5\n\t<!DOCTYPE html>\n# XHTML Doctype 1.0 Frameset\nsnippet docxf\n\t<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Frameset//EN\"\n\t\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd\">\n# XHTML Doctype 1.0 Strict\nsnippet docxs\n\t<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n\t\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n# XHTML Doctype 1.0 Transitional\nsnippet docxt\n\t<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n\t\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n# XHTML Doctype 1.1\nsnippet docx\n\t<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\n\t\"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n# html5shiv\nsnippet html5shiv\n\t<!--[if lte IE 8]>\n\t\t<script src=\"https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js\"></script>\n\t<![endif]-->\nsnippet html5printshiv\n\t<!--[if lte IE 8]>\n\t\t<script src=\"https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js\"></script>\n\t<![endif]-->\n# Attributes\nsnippet attr\n\t${1:attribute}=\"${2:property}\"\nsnippet attr+\n\t${1:attribute}=\"${2:property}\" attr+${3}\nsnippet .\n\tclass=\"${1}\"${2}\nsnippet #\n\tid=\"${1}\"${2}\nsnippet alt\n\talt=\"${1}\"${2}\nsnippet charset\n\tcharset=\"${1:utf-8}\"${2}\nsnippet data\n\tdata-${1}=\"${2:$1}\"${3}\nsnippet for\n\tfor=\"${1}\"${2}\nsnippet height\n\theight=\"${1}\"${2}\nsnippet href\n\thref=\"${1:#}\"${2}\nsnippet lang\n\tlang=\"${1:en}\"${2}\nsnippet media\n\tmedia=\"${1}\"${2}\nsnippet name\n\tname=\"${1}\"${2}\nsnippet rel\n\trel=\"${1}\"${2}\nsnippet scope\n\tscope=\"${1:row}\"${2}\nsnippet src\n\tsrc=\"${1}\"${2}\nsnippet title=\n\ttitle=\"${1}\"${2}\nsnippet type\n\ttype=\"${1}\"${2}\nsnippet value\n\tvalue=\"${1}\"${2}\nsnippet width\n\twidth=\"${1}\"${2}\n# Elements\nsnippet a\n\t<a href=\"${1:#}\">${2:$1}</a>\nsnippet a.\n\t<a class=\"${1}\" href=\"${2:#}\">${3:$1}</a>\nsnippet a#\n\t<a id=\"${1}\" href=\"${2:#}\">${3:$1}</a>\nsnippet a:ext\n\t<a href=\"http://${1:example.com}\">${2:$1}</a>\nsnippet a:mail\n\t<a href=\"mailto:${1:joe@example.com}?subject=${2:feedback}\">${3:email me}</a>\nsnippet abbr\n\t<abbr title=\"${1}\">${2}</abbr>\nsnippet address\n\t<address>\n\t\t${1}\n\t</address>\nsnippet area\n\t<area shape=\"${1:rect}\" coords=\"${2}\" href=\"${3}\" alt=\"${4}\" />\nsnippet area+\n\t<area shape=\"${1:rect}\" coords=\"${2}\" href=\"${3}\" alt=\"${4}\" />\n\tarea+${5}\nsnippet area:c\n\t<area shape=\"circle\" coords=\"${1}\" href=\"${2}\" alt=\"${3}\" />\nsnippet area:d\n\t<area shape=\"default\" coords=\"${1}\" href=\"${2}\" alt=\"${3}\" />\nsnippet area:p\n\t<area shape=\"poly\" coords=\"${1}\" href=\"${2}\" alt=\"${3}\" />\nsnippet area:r\n\t<area shape=\"rect\" coords=\"${1}\" href=\"${2}\" alt=\"${3}\" />\nsnippet article\n\t<article>\n\t\t${1}\n\t</article>\nsnippet article.\n\t<article class=\"${1}\">\n\t\t${2}\n\t</article>\nsnippet article#\n\t<article id=\"${1}\">\n\t\t${2}\n\t</article>\nsnippet aside\n\t<aside>\n\t\t${1}\n\t</aside>\nsnippet aside.\n\t<aside class=\"${1}\">\n\t\t${2}\n\t</aside>\nsnippet aside#\n\t<aside id=\"${1}\">\n\t\t${2}\n\t</aside>\nsnippet audio\n\t<audio src=\"${1}>${2}</audio>\nsnippet b\n\t<b>${1}</b>\nsnippet base\n\t<base href=\"${1}\" target=\"${2}\" />\nsnippet bdi\n\t<bdi>${1}</bdo>\nsnippet bdo\n\t<bdo dir=\"${1}\">${2}</bdo>\nsnippet bdo:l\n\t<bdo dir=\"ltr\">${1}</bdo>\nsnippet bdo:r\n\t<bdo dir=\"rtl\">${1}</bdo>\nsnippet blockquote\n\t<blockquote>\n\t\t${1}\n\t</blockquote>\nsnippet body\n\t<body>\n\t\t${1}\n\t</body>\nsnippet br\n\t<br />${1}\nsnippet button\n\t<button type=\"${1:submit}\">${2}</button>\nsnippet button.\n\t<button class=\"${1:button}\" type=\"${2:submit}\">${3}</button>\nsnippet button#\n\t<button id=\"${1}\" type=\"${2:submit}\">${3}</button>\nsnippet button:s\n\t<button type=\"submit\">${1}</button>\nsnippet button:r\n\t<button type=\"reset\">${1}</button>\nsnippet canvas\n\t<canvas>\n\t\t${1}\n\t</canvas>\nsnippet caption\n\t<caption>${1}</caption>\nsnippet cite\n\t<cite>${1}</cite>\nsnippet code\n\t<code>${1}</code>\nsnippet col\n\t<col />${1}\nsnippet col+\n\t<col />\n\tcol+${1}\nsnippet colgroup\n\t<colgroup>\n\t\t${1}\n\t</colgroup>\nsnippet colgroup+\n\t<colgroup>\n\t\t<col />\n\t\tcol+${1}\n\t</colgroup>\nsnippet command\n\t<command type=\"command\" label=\"${1}\" icon=\"${2}\" />\nsnippet command:c\n\t<command type=\"checkbox\" label=\"${1}\" icon=\"${2}\" />\nsnippet command:r\n\t<command type=\"radio\" radiogroup=\"${1}\" label=\"${2}\" icon=\"${3}\" />\nsnippet datagrid\n\t<datagrid>\n\t\t${1}\n\t</datagrid>\nsnippet datalist\n\t<datalist>\n\t\t${1}\n\t</datalist>\nsnippet datatemplate\n\t<datatemplate>\n\t\t${1}\n\t</datatemplate>\nsnippet dd\n\t<dd>${1}</dd>\nsnippet dd.\n\t<dd class=\"${1}\">${2}</dd>\nsnippet dd#\n\t<dd id=\"${1}\">${2}</dd>\nsnippet del\n\t<del>${1}</del>\nsnippet details\n\t<details>${1}</details>\nsnippet dfn\n\t<dfn>${1}</dfn>\nsnippet dialog\n\t<dialog>\n\t\t${1}\n\t</dialog>\nsnippet div\n\t<div>\n\t\t${1}\n\t</div>\nsnippet div.\n\t<div class=\"${1}\">\n\t\t${2}\n\t</div>\nsnippet div#\n\t<div id=\"${1}\">\n\t\t${2}\n\t</div>\nsnippet dl\n\t<dl>\n\t\t${1}\n\t</dl>\nsnippet dl.\n\t<dl class=\"${1}\">\n\t\t${2}\n\t</dl>\nsnippet dl#\n\t<dl id=\"${1}\">\n\t\t${2}\n\t</dl>\nsnippet dl+\n\t<dl>\n\t\t<dt>${1}</dt>\n\t\t<dd>${2}</dd>\n\t\tdt+${3}\n\t</dl>\nsnippet dt\n\t<dt>${1}</dt>\nsnippet dt.\n\t<dt class=\"${1}\">${2}</dt>\nsnippet dt#\n\t<dt id=\"${1}\">${2}</dt>\nsnippet dt+\n\t<dt>${1}</dt>\n\t<dd>${2}</dd>\n\tdt+${3}\nsnippet em\n\t<em>${1}</em>\nsnippet embed\n\t<embed src=${1} type=\"${2} />\nsnippet fieldset\n\t<fieldset>\n\t\t${1}\n\t</fieldset>\nsnippet fieldset.\n\t<fieldset class=\"${1}\">\n\t\t${2}\n\t</fieldset>\nsnippet fieldset#\n\t<fieldset id=\"${1}\">\n\t\t${2}\n\t</fieldset>\nsnippet fieldset+\n\t<fieldset>\n\t\t<legend><span>${1}</span></legend>\n\t\t${2}\n\t</fieldset>\n\tfieldset+${3}\nsnippet figcaption\n\t<figcaption>${1}</figcaption>\nsnippet figure\n\t<figure>${1}</figure>\nsnippet footer\n\t<footer>\n\t\t${1}\n\t</footer>\nsnippet footer.\n\t<footer class=\"${1}\">\n\t\t${2}\n\t</footer>\nsnippet footer#\n\t<footer id=\"${1}\">\n\t\t${2}\n\t</footer>\nsnippet form\n\t<form action=\"${1}\" method=\"${2:get}\" accept-charset=\"utf-8\">\n\t\t${3}\n\t</form>\nsnippet form.\n\t<form class=\"${1}\" action=\"${2}\" method=\"${3:get}\" accept-charset=\"utf-8\">\n\t\t${4}\n\t</form>\nsnippet form#\n\t<form id=\"${1}\" action=\"${2}\" method=\"${3:get}\" accept-charset=\"utf-8\">\n\t\t${4}\n\t</form>\nsnippet h1\n\t<h1>${1}</h1>\nsnippet h1.\n\t<h1 class=\"${1}\">${2}</h1>\nsnippet h1#\n\t<h1 id=\"${1}\">${2}</h1>\nsnippet h2\n\t<h2>${1}</h2>\nsnippet h2.\n\t<h2 class=\"${1}\">${2}</h2>\nsnippet h2#\n\t<h2 id=\"${1}\">${2}</h2>\nsnippet h3\n\t<h3>${1}</h3>\nsnippet h3.\n\t<h3 class=\"${1}\">${2}</h3>\nsnippet h3#\n\t<h3 id=\"${1}\">${2}</h3>\nsnippet h4\n\t<h4>${1}</h4>\nsnippet h4.\n\t<h4 class=\"${1}\">${2}</h4>\nsnippet h4#\n\t<h4 id=\"${1}\">${2}</h4>\nsnippet h5\n\t<h5>${1}</h5>\nsnippet h5.\n\t<h5 class=\"${1}\">${2}</h5>\nsnippet h5#\n\t<h5 id=\"${1}\">${2}</h5>\nsnippet h6\n\t<h6>${1}</h6>\nsnippet h6.\n\t<h6 class=\"${1}\">${2}</h6>\nsnippet h6#\n\t<h6 id=\"${1}\">${2}</h6>\nsnippet head\n\t<head>\n\t\t<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n\n\t\t<title>${1:`substitute(Filename('', 'Page Title'), '^.', '\\u&', '')`}</title>\n\t\t${2}\n\t</head>\nsnippet header\n\t<header>\n\t\t${1}\n\t</header>\nsnippet header.\n\t<header class=\"${1}\">\n\t\t${2}\n\t</header>\nsnippet header#\n\t<header id=\"${1}\">\n\t\t${2}\n\t</header>\nsnippet hgroup\n\t<hgroup>\n\t\t${1}\n\t</hgroup>\nsnippet hgroup.\n\t<hgroup class=\"${1}>\n\t\t${2}\n\t</hgroup>\nsnippet hr\n\t<hr />${1}\nsnippet html\n\t<html>\n\t${1}\n\t</html>\nsnippet xhtml\n\t<html xmlns=\"http://www.w3.org/1999/xhtml\">\n\t${1}\n\t</html>\nsnippet html5\n\t<!DOCTYPE html>\n\t<html>\n\t\t<head>\n\t\t\t<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n\t\t\t<title>${1:`substitute(Filename('', 'Page Title'), '^.', '\\u&', '')`}</title>\n\t\t\t${2:meta}\n\t\t</head>\n\t\t<body>\n\t\t\t${3:body}\n\t\t</body>\n\t</html>\nsnippet xhtml5\n\t<!DOCTYPE html>\n\t<html xmlns=\"http://www.w3.org/1999/xhtml\">\n\t\t<head>\n\t\t\t<meta http-equiv=\"content-type\" content=\"application/xhtml+xml; charset=utf-8\" />\n\t\t\t<title>${1:`substitute(Filename('', 'Page Title'), '^.', '\\u&', '')`}</title>\n\t\t\t${2:meta}\n\t\t</head>\n\t\t<body>\n\t\t\t${3:body}\n\t\t</body>\n\t</html>\nsnippet i\n\t<i>${1}</i>\nsnippet iframe\n\t<iframe src=\"${1}\" frameborder=\"0\"></iframe>${2}\nsnippet iframe.\n\t<iframe class=\"${1}\" src=\"${2}\" frameborder=\"0\"></iframe>${3}\nsnippet iframe#\n\t<iframe id=\"${1}\" src=\"${2}\" frameborder=\"0\"></iframe>${3}\nsnippet img\n\t<img src=\"${1}\" alt=\"${2}\" />${3}\nsnippet img.\n\t<img class=\"${1}\" src=\"${2}\" alt=\"${3}\" />${4}\nsnippet img#\n\t<img id=\"${1}\" src=\"${2}\" alt=\"${3}\" />${4}\nsnippet input\n\t<input type=\"${1:text/submit/hidden/button/image}\" name=\"${2}\" id=\"${3:$2}\" value=\"${4}\" />${5}\nsnippet input.\n\t<input class=\"${1}\" type=\"${2:text/submit/hidden/button/image}\" name=\"${3}\" id=\"${4:$3}\" value=\"${5}\" />${6}\nsnippet input:text\n\t<input type=\"text\" name=\"${1}\" id=\"${2:$1}\" value=\"${3}\" />${4}\nsnippet input:submit\n\t<input type=\"submit\" name=\"${1}\" id=\"${2:$1}\" value=\"${3}\" />${4}\nsnippet input:hidden\n\t<input type=\"hidden\" name=\"${1}\" id=\"${2:$1}\" value=\"${3}\" />${4}\nsnippet input:button\n\t<input type=\"button\" name=\"${1}\" id=\"${2:$1}\" value=\"${3}\" />${4}\nsnippet input:image\n\t<input type=\"image\" name=\"${1}\" id=\"${2:$1}\" src=\"${3}\" alt=\"${4}\" />${5}\nsnippet input:checkbox\n\t<input type=\"checkbox\" name=\"${1}\" id=\"${2:$1}\" />${3}\nsnippet input:radio\n\t<input type=\"radio\" name=\"${1}\" id=\"${2:$1}\" />${3}\nsnippet input:color\n\t<input type=\"color\" name=\"${1}\" id=\"${2:$1}\" value=\"${3}\" />${4}\nsnippet input:date\n\t<input type=\"date\" name=\"${1}\" id=\"${2:$1}\" value=\"${3}\" />${4}\nsnippet input:datetime\n\t<input type=\"datetime\" name=\"${1}\" id=\"${2:$1}\" value=\"${3}\" />${4}\nsnippet input:datetime-local\n\t<input type=\"datetime-local\" name=\"${1}\" id=\"${2:$1}\" value=\"${3}\" />${4}\nsnippet input:email\n\t<input type=\"email\" name=\"${1}\" id=\"${2:$1}\" value=\"${3}\" />${4}\nsnippet input:file\n\t<input type=\"file\" name=\"${1}\" id=\"${2:$1}\" value=\"${3}\" />${4}\nsnippet input:month\n\t<input type=\"month\" name=\"${1}\" id=\"${2:$1}\" value=\"${3}\" />${4}\nsnippet input:number\n\t<input type=\"number\" name=\"${1}\" id=\"${2:$1}\" value=\"${3}\" />${4}\nsnippet input:password\n\t<input type=\"password\" name=\"${1}\" id=\"${2:$1}\" value=\"${3}\" />${4}\nsnippet input:range\n\t<input type=\"range\" name=\"${1}\" id=\"${2:$1}\" value=\"${3}\" />${4}\nsnippet input:reset\n\t<input type=\"reset\" name=\"${1}\" id=\"${2:$1}\" value=\"${3}\" />${4}\nsnippet input:search\n\t<input type=\"search\" name=\"${1}\" id=\"${2:$1}\" value=\"${3}\" />${4}\nsnippet input:time\n\t<input type=\"time\" name=\"${1}\" id=\"${2:$1}\" value=\"${3}\" />${4}\nsnippet input:url\n\t<input type=\"url\" name=\"${1}\" id=\"${2:$1}\" value=\"${3}\" />${4}\nsnippet input:week\n\t<input type=\"week\" name=\"${1}\" id=\"${2:$1}\" value=\"${3}\" />${4}\nsnippet ins\n\t<ins>${1}</ins>\nsnippet kbd\n\t<kbd>${1}</kbd>\nsnippet keygen\n\t<keygen>${1}</keygen>\nsnippet label\n\t<label for=\"${2:$1}\">${1}</label>\nsnippet label:i\n\t<label for=\"${2:$1}\">${1}</label>\n\t<input type=\"${3:text/submit/hidden/button}\" name=\"${4:$2}\" id=\"${5:$2}\" value=\"${6}\" />${7}\nsnippet label:s\n\t<label for=\"${2:$1}\">${1}</label>\n\t<select name=\"${3:$2}\" id=\"${4:$2}\">\n\t\t<option value=\"${5}\">${6:$5}</option>\n\t</select>\nsnippet legend\n\t<legend>${1}</legend>\nsnippet legend+\n\t<legend><span>${1}</span></legend>\nsnippet li\n\t<li>${1}</li>\nsnippet li.\n\t<li class=\"${1}\">${2}</li>\nsnippet li+\n\t<li>${1}</li>\n\tli+${2}\nsnippet lia\n\t<li><a href=\"${2:#}\">${1}</a></li>\nsnippet lia+\n\t<li><a href=\"${2:#}\">${1}</a></li>\n\tlia+${3}\nsnippet link\n\t<link rel=\"${1}\" href=\"${2}\" title=\"${3}\" type=\"${4}\" />${5}\nsnippet link:atom\n\t<link rel=\"alternate\" href=\"${1:atom.xml}\" title=\"Atom\" type=\"application/atom+xml\" />${2}\nsnippet link:css\n\t<link rel=\"stylesheet\" href=\"${2:style.css}\" type=\"text/css\" media=\"${3:all}\" />${4}\nsnippet link:favicon\n\t<link rel=\"shortcut icon\" href=\"${1:favicon.ico}\" type=\"image/x-icon\" />${2}\nsnippet link:rss\n\t<link rel=\"alternate\" href=\"${1:rss.xml}\" title=\"RSS\" type=\"application/atom+xml\" />${2}\nsnippet link:touch\n\t<link rel=\"apple-touch-icon\" href=\"${1:favicon.png}\" />${2}\nsnippet map\n\t<map name=\"${1}\">\n\t\t${2}\n\t</map>\nsnippet map.\n\t<map class=\"${1}\" name=\"${2}\">\n\t\t${3}\n\t</map>\nsnippet map#\n\t<map name=\"${1}\" id=\"${2:$1}>\n\t\t${3}\n\t</map>\nsnippet map+\n\t<map name=\"${1}\">\n\t\t<area shape=\"${2}\" coords=\"${3}\" href=\"${4}\" alt=\"${5}\" />${6}\n\t</map>${7}\nsnippet mark\n\t<mark>${1}</mark>\nsnippet menu\n\t<menu>\n\t\t${1}\n\t</menu>\nsnippet menu:c\n\t<menu type=\"context\">\n\t\t${1}\n\t</menu>\nsnippet menu:t\n\t<menu type=\"toolbar\">\n\t\t${1}\n\t</menu>\nsnippet meta\n\t<meta http-equiv=\"${1}\" content=\"${2}\" />${3}\nsnippet meta:compat\n\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=${1:7,8,edge}\" />${3}\nsnippet meta:refresh\n\t<meta http-equiv=\"refresh\" content=\"text/html;charset=UTF-8\" />${3}\nsnippet meta:utf\n\t<meta http-equiv=\"content-type\" content=\"text/html;charset=UTF-8\" />${3}\nsnippet meter\n\t<meter>${1}</meter>\nsnippet nav\n\t<nav>\n\t\t${1}\n\t</nav>\nsnippet nav.\n\t<nav class=\"${1}\">\n\t\t${2}\n\t</nav>\nsnippet nav#\n\t<nav id=\"${1}\">\n\t\t${2}\n\t</nav>\nsnippet noscript\n\t<noscript>\n\t\t${1}\n\t</noscript>\nsnippet object\n\t<object data=\"${1}\" type=\"${2}\">\n\t\t${3}\n\t</object>${4}\n# Embed QT Movie\nsnippet movie\n\t<object width=\"$2\" height=\"$3\" classid=\"clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B\"\n\t codebase=\"http://www.apple.com/qtactivex/qtplugin.cab\">\n\t\t<param name=\"src\" value=\"$1\" />\n\t\t<param name=\"controller\" value=\"$4\" />\n\t\t<param name=\"autoplay\" value=\"$5\" />\n\t\t<embed src=\"${1:movie.mov}\"\n\t\t\twidth=\"${2:320}\" height=\"${3:240}\"\n\t\t\tcontroller=\"${4:true}\" autoplay=\"${5:true}\"\n\t\t\tscale=\"tofit\" cache=\"true\"\n\t\t\tpluginspage=\"http://www.apple.com/quicktime/download/\" />\n\t</object>${6}\nsnippet ol\n\t<ol>\n\t\t${1}\n\t</ol>\nsnippet ol.\n\t<ol class=\"${1}>\n\t\t${2}\n\t</ol>\nsnippet ol#\n\t<ol id=\"${1}>\n\t\t${2}\n\t</ol>\nsnippet ol+\n\t<ol>\n\t\t<li>${1}</li>\n\t\tli+${2}\n\t</ol>\nsnippet opt\n\t<option value=\"${1}\">${2:$1}</option>\nsnippet opt+\n\t<option value=\"${1}\">${2:$1}</option>\n\topt+${3}\nsnippet optt\n\t<option>${1}</option>\nsnippet optgroup\n\t<optgroup>\n\t\t<option value=\"${1}\">${2:$1}</option>\n\t\topt+${3}\n\t</optgroup>\nsnippet output\n\t<output>${1}</output>\nsnippet p\n\t<p>${1}</p>\nsnippet param\n\t<param name=\"${1}\" value=\"${2}\" />${3}\nsnippet pre\n\t<pre>\n\t\t${1}\n\t</pre>\nsnippet progress\n\t<progress>${1}</progress>\nsnippet q\n\t<q>${1}</q>\nsnippet rp\n\t<rp>${1}</rp>\nsnippet rt\n\t<rt>${1}</rt>\nsnippet ruby\n\t<ruby>\n\t\t<rp><rt>${1}</rt></rp>\n\t</ruby>\nsnippet s\n\t<s>${1}</s>\nsnippet samp\n\t<samp>\n\t\t${1}\n\t</samp>\nsnippet script\n\t<script type=\"text/javascript\" charset=\"utf-8\">\n\t\t${1}\n\t</script>\nsnippet scriptsrc\n\t<script src=\"${1}.js\" type=\"text/javascript\" charset=\"utf-8\"></script>\nsnippet newscript\n\t<script type=\"application/javascript\" charset=\"utf-8\">\n\t\t${1}\n\t</script>\nsnippet newscriptsrc\n\t<script src=\"${1}.js\" type=\"application/javascript\" charset=\"utf-8\"></script>\nsnippet section\n\t<section>\n\t\t${1}\n\t</section>\nsnippet section.\n\t<section class=\"${1}\">\n\t\t${2}\n\t</section>\nsnippet section#\n\t<section id=\"${1}\">\n\t\t${2}\n\t</section>\nsnippet select\n\t<select name=\"${1}\" id=\"${2:$1}\">\n\t\t${3}\n\t</select>\nsnippet select.\n\t<select name=\"${1}\" id=\"${2:$1}\" class=\"${3}>\n\t\t${4}\n\t</select>\nsnippet select+\n\t<select name=\"${1}\" id=\"${2:$1}\">\n\t\t<option value=\"${3}\">${4:$3}</option>\n\t\topt+${5}\n\t</select>\nsnippet small\n\t<small>${1}</small>\nsnippet source\n\t<source src=\"${1}\" type=\"${2}\" media=\"${3}\" />\nsnippet span\n\t<span>${1}</span>\nsnippet strong\n\t<strong>${1}</strong>\nsnippet style\n\t<style type=\"text/css\" media=\"${1:all}\">\n\t\t${2}\n\t</style>\nsnippet sub\n\t<sub>${1}</sub>\nsnippet summary\n\t<summary>\n\t\t${1}\n\t</summary>\nsnippet sup\n\t<sup>${1}</sup>\nsnippet table\n\t<table border=\"${1:0}\">\n\t\t${2}\n\t</table>\nsnippet table.\n\t<table class=\"${1}\" border=\"${2:0}\">\n\t\t${3}\n\t</table>\nsnippet table#\n\t<table id=\"${1}\" border=\"${2:0}\">\n\t\t${3}\n\t</table>\nsnippet tbody\n\t<tbody>\n\t\t${1}\n\t</tbody>\nsnippet td\n\t<td>${1}</td>\nsnippet td.\n\t<td class=\"${1}\">${2}</td>\nsnippet td#\n\t<td id=\"${1}\">${2}</td>\nsnippet td+\n\t<td>${1}</td>\n\ttd+${2}\nsnippet textarea\n\t<textarea name=\"${1}\" id=${2:$1} rows=\"${3:8}\" cols=\"${4:40}\">${5}</textarea>${6}\nsnippet tfoot\n\t<tfoot>\n\t\t${1}\n\t</tfoot>\nsnippet th\n\t<th>${1}</th>\nsnippet th.\n\t<th class=\"${1}\">${2}</th>\nsnippet th#\n\t<th id=\"${1}\">${2}</th>\nsnippet th+\n\t<th>${1}</th>\n\tth+${2}\nsnippet thead\n\t<thead>\n\t\t${1}\n\t</thead>\nsnippet time\n\t<time datetime=\"${1}\" pubdate=\"${2:$1}>${3:$1}</time>\nsnippet title\n\t<title>${1:`substitute(Filename('', 'Page Title'), '^.', '\\u&', '')`}</title>\nsnippet tr\n\t<tr>\n\t\t${1}\n\t</tr>\nsnippet tr+\n\t<tr>\n\t\t<td>${1}</td>\n\t\ttd+${2}\n\t</tr>\nsnippet track\n\t<track src=\"${1}\" srclang=\"${2}\" label=\"${3}\" default=\"${4:default}>${5}</track>${6}\nsnippet ul\n\t<ul>\n\t\t${1}\n\t</ul>\nsnippet ul.\n\t<ul class=\"${1}\">\n\t\t${2}\n\t</ul>\nsnippet ul#\n\t<ul id=\"${1}\">\n\t\t${2}\n\t</ul>\nsnippet ul+\n\t<ul>\n\t\t<li>${1}</li>\n\t\tli+${2}\n\t</ul>\nsnippet var\n\t<var>${1}</var>\nsnippet video\n\t<video src=\"${1} height=\"${2}\" width=\"${3}\" preload=\"${5:none}\" autoplay=\"${6:autoplay}>${7}</video>${8}\nsnippet wbr\n\t<wbr />${1}\n";
+  exports.scope = "html";
+});
+
+(function () {
+  ace.require(["ace/snippets/html"], function (m) {
+    if (( false ? undefined : _typeof(module)) == "object" && ( false ? undefined : _typeof(exports)) == "object" && module) {
+      module.exports = m;
+    }
+  });
+})();
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../webpack/buildin/module.js */ "./node_modules/webpack/buildin/module.js")(module)))
+
+/***/ }),
+
 /***/ "./node_modules/ace-builds/src-noconflict/snippets/javascript.js":
 /*!***********************************************************************!*\
   !*** ./node_modules/ace-builds/src-noconflict/snippets/javascript.js ***!
@@ -14865,6 +16207,94 @@ snippet kvt \n\
 
 (function () {
   ace.require(["ace/snippets/r"], function (m) {
+    if (( false ? undefined : _typeof(module)) == "object" && ( false ? undefined : _typeof(exports)) == "object" && module) {
+      module.exports = m;
+    }
+  });
+})();
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../webpack/buildin/module.js */ "./node_modules/webpack/buildin/module.js")(module)))
+
+/***/ }),
+
+/***/ "./node_modules/ace-builds/src-noconflict/snippets/scss.js":
+/*!*****************************************************************!*\
+  !*** ./node_modules/ace-builds/src-noconflict/snippets/scss.js ***!
+  \*****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+;
+
+(function () {
+  ace.require(["ace/snippets/scss"], function (m) {
+    if (( false ? undefined : _typeof(module)) == "object" && ( false ? undefined : _typeof(exports)) == "object" && module) {
+      module.exports = m;
+    }
+  });
+})();
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../webpack/buildin/module.js */ "./node_modules/webpack/buildin/module.js")(module)))
+
+/***/ }),
+
+/***/ "./node_modules/ace-builds/src-noconflict/snippets/text.js":
+/*!*****************************************************************!*\
+  !*** ./node_modules/ace-builds/src-noconflict/snippets/text.js ***!
+  \*****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+;
+
+(function () {
+  ace.require(["ace/snippets/text"], function (m) {
+    if (( false ? undefined : _typeof(module)) == "object" && ( false ? undefined : _typeof(exports)) == "object" && module) {
+      module.exports = m;
+    }
+  });
+})();
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../webpack/buildin/module.js */ "./node_modules/webpack/buildin/module.js")(module)))
+
+/***/ }),
+
+/***/ "./node_modules/ace-builds/src-noconflict/snippets/typescript.js":
+/*!***********************************************************************!*\
+  !*** ./node_modules/ace-builds/src-noconflict/snippets/typescript.js ***!
+  \***********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+;
+
+(function () {
+  ace.require(["ace/snippets/typescript"], function (m) {
+    if (( false ? undefined : _typeof(module)) == "object" && ( false ? undefined : _typeof(exports)) == "object" && module) {
+      module.exports = m;
+    }
+  });
+})();
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../webpack/buildin/module.js */ "./node_modules/webpack/buildin/module.js")(module)))
+
+/***/ }),
+
+/***/ "./node_modules/ace-builds/src-noconflict/snippets/yaml.js":
+/*!*****************************************************************!*\
+  !*** ./node_modules/ace-builds/src-noconflict/snippets/yaml.js ***!
+  \*****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+;
+
+(function () {
+  ace.require(["ace/snippets/yaml"], function (m) {
     if (( false ? undefined : _typeof(module)) == "object" && ( false ? undefined : _typeof(exports)) == "object" && module) {
       module.exports = m;
     }
@@ -23180,30 +24610,44 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var ace_builds_src_noconflict_ext_language_tools__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_ext_language_tools__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var ace_builds_src_noconflict_ext_searchbox__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ace-builds/src-noconflict/ext-searchbox */ "./node_modules/ace-builds/src-noconflict/ext-searchbox.js");
 /* harmony import */ var ace_builds_src_noconflict_ext_searchbox__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_ext_searchbox__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var ace_builds_src_noconflict_snippets_javascript__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ace-builds/src-noconflict/snippets/javascript */ "./node_modules/ace-builds/src-noconflict/snippets/javascript.js");
-/* harmony import */ var ace_builds_src_noconflict_snippets_javascript__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_snippets_javascript__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var ace_builds_src_noconflict_snippets_r__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ace-builds/src-noconflict/snippets/r */ "./node_modules/ace-builds/src-noconflict/snippets/r.js");
-/* harmony import */ var ace_builds_src_noconflict_snippets_r__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_snippets_r__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var ace_builds_src_noconflict_mode_css__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ace-builds/src-noconflict/mode-css */ "./node_modules/ace-builds/src-noconflict/mode-css.js");
-/* harmony import */ var ace_builds_src_noconflict_mode_css__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_mode_css__WEBPACK_IMPORTED_MODULE_7__);
-/* harmony import */ var ace_builds_src_noconflict_mode_html__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ace-builds/src-noconflict/mode-html */ "./node_modules/ace-builds/src-noconflict/mode-html.js");
-/* harmony import */ var ace_builds_src_noconflict_mode_html__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_mode_html__WEBPACK_IMPORTED_MODULE_8__);
-/* harmony import */ var ace_builds_src_noconflict_mode_javascript__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ace-builds/src-noconflict/mode-javascript */ "./node_modules/ace-builds/src-noconflict/mode-javascript.js");
-/* harmony import */ var ace_builds_src_noconflict_mode_javascript__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_mode_javascript__WEBPACK_IMPORTED_MODULE_9__);
-/* harmony import */ var ace_builds_src_noconflict_mode_jsx__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ace-builds/src-noconflict/mode-jsx */ "./node_modules/ace-builds/src-noconflict/mode-jsx.js");
-/* harmony import */ var ace_builds_src_noconflict_mode_jsx__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_mode_jsx__WEBPACK_IMPORTED_MODULE_10__);
-/* harmony import */ var ace_builds_src_noconflict_mode_r__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ace-builds/src-noconflict/mode-r */ "./node_modules/ace-builds/src-noconflict/mode-r.js");
-/* harmony import */ var ace_builds_src_noconflict_mode_r__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_mode_r__WEBPACK_IMPORTED_MODULE_11__);
-/* harmony import */ var ace_builds_src_noconflict_mode_rhtml__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ace-builds/src-noconflict/mode-rhtml */ "./node_modules/ace-builds/src-noconflict/mode-rhtml.js");
-/* harmony import */ var ace_builds_src_noconflict_mode_rhtml__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_mode_rhtml__WEBPACK_IMPORTED_MODULE_12__);
-/* harmony import */ var ace_builds_src_noconflict_mode_scss__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ace-builds/src-noconflict/mode-scss */ "./node_modules/ace-builds/src-noconflict/mode-scss.js");
-/* harmony import */ var ace_builds_src_noconflict_mode_scss__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_mode_scss__WEBPACK_IMPORTED_MODULE_13__);
-/* harmony import */ var ace_builds_src_noconflict_mode_text__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ace-builds/src-noconflict/mode-text */ "./node_modules/ace-builds/src-noconflict/mode-text.js");
-/* harmony import */ var ace_builds_src_noconflict_mode_text__WEBPACK_IMPORTED_MODULE_14___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_mode_text__WEBPACK_IMPORTED_MODULE_14__);
-/* harmony import */ var ace_builds_src_noconflict_mode_typescript__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ace-builds/src-noconflict/mode-typescript */ "./node_modules/ace-builds/src-noconflict/mode-typescript.js");
-/* harmony import */ var ace_builds_src_noconflict_mode_typescript__WEBPACK_IMPORTED_MODULE_15___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_mode_typescript__WEBPACK_IMPORTED_MODULE_15__);
-/* harmony import */ var ace_builds_src_noconflict_theme_cobalt__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ace-builds/src-noconflict/theme-cobalt */ "./node_modules/ace-builds/src-noconflict/theme-cobalt.js");
-/* harmony import */ var ace_builds_src_noconflict_theme_cobalt__WEBPACK_IMPORTED_MODULE_16___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_theme_cobalt__WEBPACK_IMPORTED_MODULE_16__);
+/* harmony import */ var ace_builds_src_noconflict_snippets_css__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ace-builds/src-noconflict/snippets/css */ "./node_modules/ace-builds/src-noconflict/snippets/css.js");
+/* harmony import */ var ace_builds_src_noconflict_snippets_css__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_snippets_css__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var ace_builds_src_noconflict_snippets_html__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ace-builds/src-noconflict/snippets/html */ "./node_modules/ace-builds/src-noconflict/snippets/html.js");
+/* harmony import */ var ace_builds_src_noconflict_snippets_html__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_snippets_html__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var ace_builds_src_noconflict_snippets_r__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ace-builds/src-noconflict/snippets/r */ "./node_modules/ace-builds/src-noconflict/snippets/r.js");
+/* harmony import */ var ace_builds_src_noconflict_snippets_r__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_snippets_r__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var ace_builds_src_noconflict_snippets_javascript__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ace-builds/src-noconflict/snippets/javascript */ "./node_modules/ace-builds/src-noconflict/snippets/javascript.js");
+/* harmony import */ var ace_builds_src_noconflict_snippets_javascript__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_snippets_javascript__WEBPACK_IMPORTED_MODULE_8__);
+/* harmony import */ var ace_builds_src_noconflict_snippets_scss__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ace-builds/src-noconflict/snippets/scss */ "./node_modules/ace-builds/src-noconflict/snippets/scss.js");
+/* harmony import */ var ace_builds_src_noconflict_snippets_scss__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_snippets_scss__WEBPACK_IMPORTED_MODULE_9__);
+/* harmony import */ var ace_builds_src_noconflict_snippets_text__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ace-builds/src-noconflict/snippets/text */ "./node_modules/ace-builds/src-noconflict/snippets/text.js");
+/* harmony import */ var ace_builds_src_noconflict_snippets_text__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_snippets_text__WEBPACK_IMPORTED_MODULE_10__);
+/* harmony import */ var ace_builds_src_noconflict_snippets_typescript__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ace-builds/src-noconflict/snippets/typescript */ "./node_modules/ace-builds/src-noconflict/snippets/typescript.js");
+/* harmony import */ var ace_builds_src_noconflict_snippets_typescript__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_snippets_typescript__WEBPACK_IMPORTED_MODULE_11__);
+/* harmony import */ var ace_builds_src_noconflict_snippets_yaml__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ace-builds/src-noconflict/snippets/yaml */ "./node_modules/ace-builds/src-noconflict/snippets/yaml.js");
+/* harmony import */ var ace_builds_src_noconflict_snippets_yaml__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_snippets_yaml__WEBPACK_IMPORTED_MODULE_12__);
+/* harmony import */ var ace_builds_src_noconflict_mode_css__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ace-builds/src-noconflict/mode-css */ "./node_modules/ace-builds/src-noconflict/mode-css.js");
+/* harmony import */ var ace_builds_src_noconflict_mode_css__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_mode_css__WEBPACK_IMPORTED_MODULE_13__);
+/* harmony import */ var ace_builds_src_noconflict_mode_html__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ace-builds/src-noconflict/mode-html */ "./node_modules/ace-builds/src-noconflict/mode-html.js");
+/* harmony import */ var ace_builds_src_noconflict_mode_html__WEBPACK_IMPORTED_MODULE_14___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_mode_html__WEBPACK_IMPORTED_MODULE_14__);
+/* harmony import */ var ace_builds_src_noconflict_mode_javascript__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ace-builds/src-noconflict/mode-javascript */ "./node_modules/ace-builds/src-noconflict/mode-javascript.js");
+/* harmony import */ var ace_builds_src_noconflict_mode_javascript__WEBPACK_IMPORTED_MODULE_15___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_mode_javascript__WEBPACK_IMPORTED_MODULE_15__);
+/* harmony import */ var ace_builds_src_noconflict_mode_jsx__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ace-builds/src-noconflict/mode-jsx */ "./node_modules/ace-builds/src-noconflict/mode-jsx.js");
+/* harmony import */ var ace_builds_src_noconflict_mode_jsx__WEBPACK_IMPORTED_MODULE_16___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_mode_jsx__WEBPACK_IMPORTED_MODULE_16__);
+/* harmony import */ var ace_builds_src_noconflict_mode_r__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ace-builds/src-noconflict/mode-r */ "./node_modules/ace-builds/src-noconflict/mode-r.js");
+/* harmony import */ var ace_builds_src_noconflict_mode_r__WEBPACK_IMPORTED_MODULE_17___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_mode_r__WEBPACK_IMPORTED_MODULE_17__);
+/* harmony import */ var ace_builds_src_noconflict_mode_rhtml__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ace-builds/src-noconflict/mode-rhtml */ "./node_modules/ace-builds/src-noconflict/mode-rhtml.js");
+/* harmony import */ var ace_builds_src_noconflict_mode_rhtml__WEBPACK_IMPORTED_MODULE_18___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_mode_rhtml__WEBPACK_IMPORTED_MODULE_18__);
+/* harmony import */ var ace_builds_src_noconflict_mode_scss__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ace-builds/src-noconflict/mode-scss */ "./node_modules/ace-builds/src-noconflict/mode-scss.js");
+/* harmony import */ var ace_builds_src_noconflict_mode_scss__WEBPACK_IMPORTED_MODULE_19___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_mode_scss__WEBPACK_IMPORTED_MODULE_19__);
+/* harmony import */ var ace_builds_src_noconflict_mode_text__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ace-builds/src-noconflict/mode-text */ "./node_modules/ace-builds/src-noconflict/mode-text.js");
+/* harmony import */ var ace_builds_src_noconflict_mode_text__WEBPACK_IMPORTED_MODULE_20___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_mode_text__WEBPACK_IMPORTED_MODULE_20__);
+/* harmony import */ var ace_builds_src_noconflict_mode_typescript__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ace-builds/src-noconflict/mode-typescript */ "./node_modules/ace-builds/src-noconflict/mode-typescript.js");
+/* harmony import */ var ace_builds_src_noconflict_mode_typescript__WEBPACK_IMPORTED_MODULE_21___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_mode_typescript__WEBPACK_IMPORTED_MODULE_21__);
+/* harmony import */ var ace_builds_src_noconflict_mode_yaml__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ace-builds/src-noconflict/mode-yaml */ "./node_modules/ace-builds/src-noconflict/mode-yaml.js");
+/* harmony import */ var ace_builds_src_noconflict_mode_yaml__WEBPACK_IMPORTED_MODULE_22___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_mode_yaml__WEBPACK_IMPORTED_MODULE_22__);
+/* harmony import */ var ace_builds_src_noconflict_theme_cobalt__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ace-builds/src-noconflict/theme-cobalt */ "./node_modules/ace-builds/src-noconflict/theme-cobalt.js");
+/* harmony import */ var ace_builds_src_noconflict_theme_cobalt__WEBPACK_IMPORTED_MODULE_23___default = /*#__PURE__*/__webpack_require__.n(ace_builds_src_noconflict_theme_cobalt__WEBPACK_IMPORTED_MODULE_23__);
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -23242,6 +24686,14 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 //import jsWorkerUrl from "file-loader?esModule=false!ace-builds/src-noconflict/worker-javascript";
 ////import jsWorkerUrl from 'ace-builds/src-noconflict/worker-javascript';
 ////ace.config.setModuleUrl("ace/mode/javascript_worker", jsWorkerUrl);
+
+
+
+
+
+
+
+
 
 
 
