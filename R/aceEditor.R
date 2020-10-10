@@ -12,6 +12,9 @@
 #' @param fontSize font size
 #' @param tabSize number of spaces for the indentation (usually \code{2} or
 #'   \code{4}); if \code{NULL}, it is set to the one used in RStudio
+#' @param autoCompletion logical, whether to enable the auto completion
+#' @param snippets logical, whether to enable the snippets (for example, there
+#'   is a snippet for \code{switch} in JavaScript)
 #' @param width,height x
 #' @param elementId x
 #'
@@ -24,6 +27,7 @@
 aceEditor <- function(
   contents, mode = NULL, theme = NULL,
   fontSize = 14, tabSize = NULL,
+  autoCompletion = TRUE, snippets = FALSE,
   width = NULL, height = NULL,
   elementId = NULL
 ) {
@@ -92,7 +96,9 @@ aceEditor <- function(
       theme = theme,
       fileName = fileName,
       fontSize = fontSize,
-      tabSize = ifelse(is.null(tabSize), getTabSize(), tabSize)
+      tabSize = ifelse(is.null(tabSize), getTabSize(), tabSize),
+      autoCompletion = autoCompletion,
+      snippets = snippets
     )
   )
 

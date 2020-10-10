@@ -10,6 +10,8 @@ aceEditor(
   theme = NULL,
   fontSize = 14,
   tabSize = NULL,
+  autoCompletion = TRUE,
+  snippets = FALSE,
   width = NULL,
   height = NULL,
   elementId = NULL
@@ -31,6 +33,11 @@ the list of available themes}
 
 \item{tabSize}{number of spaces for the indentation (usually \code{2} or
 \code{4}); if \code{NULL}, it is set to the one used in RStudio}
+
+\item{autoCompletion}{logical, whether to enable the auto completion}
+
+\item{snippets}{logical, whether to enable the snippets (for example, there
+is a snippet for \code{switch} in JavaScript)}
 
 \item{width, height}{x}
 

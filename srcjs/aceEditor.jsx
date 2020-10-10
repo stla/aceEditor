@@ -24,7 +24,10 @@ import AceEditor from "react-ace";
 ////import jsWorkerUrl from 'ace-builds/src-noconflict/worker-javascript';
 ////ace.config.setModuleUrl("ace/mode/javascript_worker", jsWorkerUrl);
 
+import "ace-builds/src-noconflict/ext-language_tools";
 import "ace-builds/src-noconflict/ext-searchbox";
+import "ace-builds/src-noconflict/snippets/javascript";
+import "ace-builds/src-noconflict/snippets/r";
 
 import "ace-builds/src-noconflict/mode-css";
 import "ace-builds/src-noconflict/mode-html";
@@ -177,7 +180,10 @@ class Ace extends React.PureComponent {
         }}
         setOptions={{
           useWorker: false, 
-          tabSize: this.props.tabSize
+          tabSize: this.props.tabSize,
+          enableBasicAutocompletion: false,
+          enableLiveAutocompletion: this.props.autoCompletion,
+          enableSnippets: this.props.snippets
         }}
         showGutter={true}
         onChange={onChange}
