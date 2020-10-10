@@ -14,11 +14,8 @@ aceEditor <- function(
   elementId = NULL
 ) {
 
-  if(is.null(contents)){
-    if(is.null(mode)){
-      mode <- "text"
-    }
-  }else if(missing(contents)){
+  fileName <- NULL
+  if(missing(contents)){
     if(isAvailable()){
       context <- getSourceEditorContext()
       contents <- paste0(context[["contents"]], collapse = "\n")
@@ -28,19 +25,21 @@ aceEditor <- function(
     if(is.null(mode)){
       ext <- file_ext(context[["path"]])
       mode <- modeFromExtension(ext)
-      if(is.null(mode)){
-        mode <- "text"
-      }
     }
-  }else if(file.exists(contents)){ # keep track of file name, for saving
+    fileName <- basename(context[["path"]])
+  }else if(file.exists(contents)){
     if(is.null(mode)){
       ext <- file_ext(contents)
       mode <- modeFromExtension(ext)
-      if(is.null(mode)){
-        mode <- "text"
-      }
+      fileName <- basename(contents)
     }
     contents <- paste0(suppressWarnings(readLines(contents)), collapse = "\n")
+  }
+  if(is.null(mode)){
+    mode <- "text"
+  }
+  if(is.null(fileName)){
+    fileName <- "untitled"
   }
 
   # describe a React component to send to the browser for rendering.
@@ -48,7 +47,8 @@ aceEditor <- function(
     "Ace",
     list(
       contents = contents,
-      mode = mode
+      mode = mode,
+      fileName = fileName
     )
   )
 

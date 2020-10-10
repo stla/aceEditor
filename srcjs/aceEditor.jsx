@@ -28,7 +28,7 @@ import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/theme-cobalt";
 /*----------------------------------------------------------------------------*/
 
-$(document).ready(function () {
+$(document).ready(function () { // To put in componentDidMount()
 
   $("#btn-prettify").on("click", function () {
     let ed = ace.edit("UNIQUE_ID_OF_DIV");
@@ -51,8 +51,19 @@ $(document).ready(function () {
       alert("error");
     }
   });
-    
+
+  $("#btn-save").on("click", function () {
+    let ed = ace.edit("UNIQUE_ID_OF_DIV");
+    const a = document.createElement("a");
+    document.body.append(a);
+    a.download = "FILENAME";
+    a.href = "data:text/plain;base64," + btoa(ed.getValue());
+    a.click();
+    a.remove();
+  });
+
 });
+
 
 
 
