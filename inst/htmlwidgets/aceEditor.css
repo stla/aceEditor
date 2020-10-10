@@ -89,4 +89,10 @@ button:hover {
   left: 0;
   width: unset !important;
   height: unset !important;
+  border: 1px solid silver;
+  border-radius: 9px;
+}
+
+.ace_gutter {
+  border-radius: 9px;
 }
