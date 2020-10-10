@@ -4,12 +4,13 @@ html, body {
 
 body {
   background-color: #000;
-  overflow: auto !important;
+/*  overflow: auto !important; */
   padding: 0 !important;
 }
 
 #buttonsBar {
   margin-bottom: 5px;
+  width: 100%;
 }
 
 #buttonsBlock {
@@ -73,4 +74,19 @@ button:hover {
 .ace_scrollbar::-webkit-scrollbar-thumb {
   border-radius: 10px;
   background-color: tomato;
+}
+
+.aceEditor {
+  position: relative;
+  display: block;
+}
+
+#UNIQUE_ID_OF_DIV {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 25px;
+  left: 0;
+  width: unset !important;
+  height: unset !important;
 }
