@@ -10,6 +10,7 @@
 #' @export
 aceEditor <- function(
   contents, mode = NULL,
+  fontSize = 14, tabSize = NULL,
   width = NULL, height = NULL,
   elementId = NULL
 ) {
@@ -48,7 +49,9 @@ aceEditor <- function(
     list(
       contents = contents,
       mode = mode,
-      fileName = fileName
+      fileName = fileName,
+      fontSize = fontSize,
+      tabSize = ifelse(is.null(tabSize), getTabSize(), tabSize)
     )
   )
 

@@ -6,7 +6,7 @@ export const toUTCtime = function (string) {
 };
 
 
-export const prettify = function (code, parser) {
+export const prettify = function (code, parser, tabSize) {
   let prettyCode = null,
     error = null;
   try {
@@ -14,7 +14,7 @@ export const prettify = function (code, parser) {
       parser: parser,
       plugins: prettierPlugins,
       trailingComma: "none",
-      tabWidth: 2
+      tabWidth: tabSize
     });
   } catch (err) {
     error = err.message;
@@ -26,10 +26,10 @@ export const prettify = function (code, parser) {
 };
 
 
-export const format = function(code, mode) {
+export const format = function(code, mode, tabSize) {
   var prettyCode = null, 
     error = null;
-  let tabString = " ".repeat(2);
+  let tabString = " ".repeat(tabSize);
   try {
     switch(mode) {
       case "javascript":

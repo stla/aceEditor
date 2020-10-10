@@ -50,7 +50,8 @@ class Ace extends React.PureComponent {
   componentDidMount() {
 
     let mode = this.props.mode,
-        fileName = this.props.fileName;
+        fileName = this.props.fileName,
+        tabSize = this.props.tabSize;
 
     // disable buttons according to mode 
     let formattable = [
@@ -59,14 +60,12 @@ class Ace extends React.PureComponent {
     let prettifiable = formattable.concat([
       "markdown", "yaml", "typescript"
     ]);
-    if(mode.indexOf(formattable) === -1) {
+    if(formattable.indexOf(mode) === -1) {
       $("#btn-format").hide();
     }
-    if(mode.indexOf(prettifiable) === -1) {
+    if(prettifiable.indexOf(mode) === -1) {
       $("#btn-prettify").hide();
     }
-
-
 
     // buttons actions
     $("#btn-prettify").on("click", function () {
@@ -101,7 +100,7 @@ class Ace extends React.PureComponent {
           parser = "typescript";
           break;
       }
-      let result = A.prettify(ed.getValue(), parser);
+      let result = A.prettify(ed.getValue(), parser, tabSize);
       console.log(result);
       if(result.error === null) {
         ed.setValue(result.prettyCode, -1);
@@ -133,7 +132,7 @@ class Ace extends React.PureComponent {
           parser = "html";
           break;
       }
-      let result = A.format(ed.getValue(), parser);
+      let result = A.format(ed.getValue(), parser, tabSize);
       console.log(result);
       if(result.error === null) {
         ed.setValue(result.prettyCode, -1);
@@ -157,14 +156,20 @@ class Ace extends React.PureComponent {
   render() {
     return (
       <AceEditor
+        name="UNIQUE_ID_OF_DIV"
         theme="cobalt"
         mode={this.props.mode}
         value={this.props.contents}
-        onChange={onChange}
-        name="UNIQUE_ID_OF_DIV"
-        editorProps={{ $blockScrolling: true }}
-        setOptions={{ useWorker: false }}
+        fontSize={this.props.fontSize}
+        editorProps={{ 
+          $blockScrolling: true 
+        }}
+        setOptions={{
+          useWorker: false, 
+          tabSize: this.props.tabSize
+        }}
         showGutter={true}
+        onChange={onChange}
       />
     );
   }

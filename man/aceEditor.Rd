@@ -4,7 +4,15 @@
 \alias{aceEditor}
 \title{<Add Title>}
 \usage{
-aceEditor(contents, mode = NULL, width = NULL, height = NULL, elementId = NULL)
+aceEditor(
+  contents,
+  mode = NULL,
+  fontSize = 14,
+  tabSize = NULL,
+  width = NULL,
+  height = NULL,
+  elementId = NULL
+)
 }
 \description{
 <Add Description>
