@@ -30,38 +30,6 @@ import "ace-builds/src-noconflict/theme-cobalt";
 
 $(document).ready(function () { // To put in componentDidMount()
 
-  $("#btn-prettify").on("click", function () {
-    let ed = ace.edit("UNIQUE_ID_OF_DIV");
-    let result = A.prettify(ed.getValue(), "babel");
-    console.log(result);
-    if(result.error === null) {
-      ed.setValue(result.prettyCode, -1);
-    } else {
-      alert("error");
-    }
-  });
-
-  $("#btn-format").on("click", function () {
-    let ed = ace.edit("UNIQUE_ID_OF_DIV");
-    let result = A.format(ed.getValue(), "javascript");
-    console.log(result);
-    if(result.error === null) {
-      ed.setValue(result.prettyCode, -1);
-    } else {
-      alert("error");
-    }
-  });
-
-  $("#btn-save").on("click", function () {
-    let ed = ace.edit("UNIQUE_ID_OF_DIV");
-    const a = document.createElement("a");
-    document.body.append(a);
-    a.download = "FILENAME";
-    a.href = "data:text/plain;base64," + btoa(ed.getValue());
-    a.click();
-    a.remove();
-  });
-
 });
 
 
@@ -74,8 +42,101 @@ function onChange(newValue) {
 }
 
 class Ace extends React.PureComponent {
+
   constructor(props) {
     super(props);
+  }
+
+  componentDidMount() {
+
+    let mode = this.props.mode,
+        fileName = this.props.fileName;
+
+    // disable buttons according to mode 
+
+    $("#btn-prettify").on("click", function () {
+      let ed = ace.edit("UNIQUE_ID_OF_DIV");
+      let parser;
+      switch (mode) {
+        case "javascript":
+          parser = "babel";
+          break;
+        case "jsx":
+          parser = "babel";
+          break;
+        case "css":
+          parser = "css";
+          break;
+        case "scss":
+          parser = "css";
+          break;
+        case "html":
+          parser = "html";
+          break;
+        case "rhtml":
+          parser = "html";
+          break;
+        case "markdown":
+          parser = "markdown";
+          break;
+        case "yaml":
+          parser = "yaml";
+          break;
+        case "typescript":
+          parser = "typescript";
+          break;
+      }
+      let result = A.prettify(ed.getValue(), parser);
+      console.log(result);
+      if(result.error === null) {
+        ed.setValue(result.prettyCode, -1);
+      } else {
+        alert("error");
+      }
+    });
+  
+    $("#btn-format").on("click", function () {
+      let ed = ace.edit("UNIQUE_ID_OF_DIV");
+      let parser;
+      switch (mode) {
+        case "javascript":
+          parser = "javascript";
+          break;
+        case "jsx":
+          parser = "javascript";
+          break;
+        case "css":
+          parser = "css";
+          break;
+        case "scss":
+          parser = "css";
+          break;
+        case "html":
+          parser = "html";
+          break;
+        case "rhtml":
+          parser = "html";
+          break;
+      }
+      let result = A.format(ed.getValue(), parser);
+      console.log(result);
+      if(result.error === null) {
+        ed.setValue(result.prettyCode, -1);
+      } else {
+        alert("error");
+      }
+    });
+  
+    $("#btn-save").on("click", function () {
+      let ed = ace.edit("UNIQUE_ID_OF_DIV");
+      const a = document.createElement("a");
+      document.body.append(a);
+      a.download = fileName;
+      a.href = "data:text/plain;base64," + btoa(ed.getValue());
+      a.click();
+      a.remove();
+    });
+  
   }
 
   render() {
