@@ -10,3 +10,4 @@
 ^inst/essais$
 ^inst/testFiles$
 ^inst/folderGadget\.R$
+^inst/screenshots$
