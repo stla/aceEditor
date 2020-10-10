@@ -15,8 +15,10 @@
 #' @param autoCompletion logical, whether to enable the auto completion
 #' @param snippets logical, whether to enable the snippets (for example, there
 #'   is a snippet for \code{switch} in JavaScript)
-#' @param width,height x
-#' @param elementId x
+#' @param width,height dimensions; the default values are nice for usage in
+#'   the RStudio viewer pane
+#' @param elementId a HTML id for the container; this is useless for common
+#'   usage
 #'
 #' @importFrom htmlwidgets createWidget
 #' @importFrom reactR component reactMarkup
@@ -24,6 +26,7 @@
 #' @importFrom tools file_ext
 #'
 #' @export
+#' @examples aceEditor()
 aceEditor <- function(
   contents, mode = NULL, theme = NULL,
   fontSize = 14, tabSize = NULL,

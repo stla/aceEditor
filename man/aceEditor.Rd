@@ -39,10 +39,15 @@ the list of available themes}
 \item{snippets}{logical, whether to enable the snippets (for example, there
 is a snippet for \code{switch} in JavaScript)}
 
-\item{width, height}{x}
+\item{width, height}{dimensions; the default values are nice for usage in
+the RStudio viewer pane}
 
-\item{elementId}{x}
+\item{elementId}{a HTML id for the container; this is useless for common
+usage}
 }
 \description{
 Open the Ace editor.
+}
+\examples{
+aceEditor()
 }
