@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 node_modules
+TODO.txt
 inst/essais
 inst/testFiles
 inst/folderGadget.R

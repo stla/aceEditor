@@ -6,6 +6,7 @@
 ^package\.json$
 ^webpack\.config\.js$
 ^yarn\.lock$
+^TODO\.txt$
 ^inst/essais$
 ^inst/testFiles$
 ^inst/folderGadget\.R$

@@ -26,7 +26,16 @@ import AceEditor from "react-ace";
 
 import "ace-builds/src-noconflict/ext-searchbox";
 
+import "ace-builds/src-noconflict/mode-css";
+import "ace-builds/src-noconflict/mode-html";
 import "ace-builds/src-noconflict/mode-javascript";
+import "ace-builds/src-noconflict/mode-jsx";
+import "ace-builds/src-noconflict/mode-r";
+import "ace-builds/src-noconflict/mode-rhtml";
+import "ace-builds/src-noconflict/mode-scss";
+import "ace-builds/src-noconflict/mode-text";
+import "ace-builds/src-noconflict/mode-typescript";
+
 import "ace-builds/src-noconflict/theme-cobalt";
 /*----------------------------------------------------------------------------*/
 

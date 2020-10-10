@@ -62,3 +62,15 @@ button:hover {
 #btn-prettify, #btn-format {
   margin-right: 5px;
 }
+
+.ace_scrollbar::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background-color: crimson;
+}
+.ace_scrollbar::-webkit-scrollbar {
+  background-color: transparent;
+}
+.ace_scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: tomato;
+}

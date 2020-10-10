@@ -23,6 +23,7 @@ dependencies:
     - parser-html.js
     - parser-markdown.js
     - parser-postcss.js
+    - parser-typescript.js
     - parser-yaml.js
  - name: jQuery
    version: 3.5.1
