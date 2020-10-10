@@ -1,21 +1,58 @@
-#' <Add Title>
+#' Ace editor
+#' @description Open the Ace editor.
 #'
-#' <Add Description>
+#' @param contents this can be the path to a file, \code{NULL} to open an
+#'   empty editor, or missing to open the file currently open in RStudio
+#' @param mode the language of the contents; if \code{NULL} and the contents are
+#'   read from a file, the mode is guessed from the extension of the file;
+#'   run \code{\link{getAceModes()}} to get the list of available modes
+#' @param theme the theme of the editor; if \code{NULL}, the theme is set to the
+#'   theme currently used in RStudio; run \code{\link{getAceThemes()}} to get
+#'   the list of available themes
+#' @param fontSize font size
+#' @param tabSize number of spaces for the indentation (usually \code{2} or
+#'   \code{4}); if \code{NULL}, it is set to the one used in RStudio
+#' @param width,height x
+#' @param elementId x
 #'
 #' @importFrom htmlwidgets createWidget
 #' @importFrom reactR component reactMarkup
-#' @importFrom rstudioapi getSourceEditorContext isAvailable
+#' @importFrom rstudioapi getSourceEditorContext isAvailable getThemeInfo
 #' @importFrom tools file_ext
 #'
 #' @export
 aceEditor <- function(
-  contents, mode = NULL,
+  contents, mode = NULL, theme = NULL,
   fontSize = 14, tabSize = NULL,
   width = NULL, height = NULL,
   elementId = NULL
 ) {
 
+  if(!is.null(mode) && !is.element(mode, getAceModes())){
+    message(
+      "Invalid `mode` argument.",
+      "Run `getAceModes()` to get the list of available modes."
+    )
+  }
+
+  if(is.null(theme)){
+    if(isAvailable()){
+      themeInfo <- getThemeInfo()
+      theme <- gsub(" ", "_", tolower(themeInfo[["editor"]]))
+    }else{
+      theme <- "cobalt"
+    }
+  }else{
+    if(!is.element(theme, getAceThemes())){
+      message(
+        "This theme is not available.",
+        "Run `getAceThemes()` to get the list of available themes."
+      )
+    }
+  }
+
   fileName <- NULL
+
   if(missing(contents)){
     if(isAvailable()){
       context <- getSourceEditorContext()
@@ -29,8 +66,11 @@ aceEditor <- function(
     }
     fileName <- basename(context[["path"]])
   }else if(file.exists(contents)){
+    ext <- file_ext(contents)
+    if(tolower(ext) %in% binaryExtensions){
+      stop("Cannot open this type of files.")
+    }
     if(is.null(mode)){
-      ext <- file_ext(contents)
       mode <- modeFromExtension(ext)
       fileName <- basename(contents)
     }
@@ -49,6 +89,7 @@ aceEditor <- function(
     list(
       contents = contents,
       mode = mode,
+      theme = theme,
       fileName = fileName,
       fontSize = fontSize,
       tabSize = ifelse(is.null(tabSize), getTabSize(), tabSize)

@@ -168,7 +168,7 @@ class Ace extends React.PureComponent {
     return (
       <AceEditor
         name="UNIQUE_ID_OF_DIV"
-        theme="cobalt"
+        theme={this.props.theme}
         mode={this.props.mode}
         value={this.props.contents}
         fontSize={this.props.fontSize}

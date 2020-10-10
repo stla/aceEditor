@@ -2,11 +2,12 @@
 % Please edit documentation in R/aceEditor.R
 \name{aceEditor}
 \alias{aceEditor}
-\title{<Add Title>}
+\title{Ace editor}
 \usage{
 aceEditor(
   contents,
   mode = NULL,
+  theme = NULL,
   fontSize = 14,
   tabSize = NULL,
   width = NULL,
@@ -14,6 +15,27 @@ aceEditor(
   elementId = NULL
 )
 }
+\arguments{
+\item{contents}{this can be the path to a file, \code{NULL} to open an
+empty editor, or missing to open the file currently open in RStudio}
+
+\item{mode}{the language of the contents; if \code{NULL} and the contents are
+read from a file, the mode is guessed from the extension of the file;
+run \code{\link{getAceModes()}} to get the list of available modes}
+
+\item{theme}{the theme of the editor; if \code{NULL}, the theme is set to the
+theme currently used in RStudio; run \code{\link{getAceThemes()}} to get
+the list of available themes}
+
+\item{fontSize}{font size}
+
+\item{tabSize}{number of spaces for the indentation (usually \code{2} or
+\code{4}); if \code{NULL}, it is set to the one used in RStudio}
+
+\item{width, height}{x}
+
+\item{elementId}{x}
+}
 \description{
-<Add Description>
+Open the Ace editor.
 }
