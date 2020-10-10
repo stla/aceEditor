@@ -24715,7 +24715,9 @@ $(document).ready(function () {// To put in componentDidMount()
 });
 /*----------------------------------------------------------------------------*/
 
-function onChange(newValue) {//console.log("change", newValue);
+function onChange(newValue) {
+  $("#btn-save").show(1000);
+  $("#btn-save").css("font-style", "italic");
 }
 
 var Ace = /*#__PURE__*/function (_React$PureComponent) {
@@ -24839,6 +24841,7 @@ var Ace = /*#__PURE__*/function (_React$PureComponent) {
         }
       });
       $("#btn-save").on("click", function () {
+        $("#btn-save").css("font-style", "normal");
         var ed = ace.edit("UNIQUE_ID_OF_DIV");
         var a = document.createElement("a");
         document.body.append(a);

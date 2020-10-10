@@ -62,7 +62,8 @@ $(document).ready(function () { // To put in componentDidMount()
 
 /*----------------------------------------------------------------------------*/
 function onChange(newValue) {
-  //console.log("change", newValue);
+  $("#btn-save").show(1000);
+  $("#btn-save").css("font-style", "italic");
 }
 
 class Ace extends React.PureComponent {
@@ -166,6 +167,7 @@ class Ace extends React.PureComponent {
     });
   
     $("#btn-save").on("click", function () {
+      $("#btn-save").css("font-style", "normal");
       let ed = ace.edit("UNIQUE_ID_OF_DIV");
       const a = document.createElement("a");
       document.body.append(a);
