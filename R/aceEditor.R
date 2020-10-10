@@ -26,15 +26,19 @@ aceEditor <- function(
       contents <- NULL
     }
     if(is.null(mode)){
-      mode <- "text" # no, file ext
+      ext <- file_ext(context[["path"]])
+      mode <- modeFromExtension(ext)
+      if(is.null(mode)){
+        mode <- "text"
+      }
     }
-  }else if(file.exists(contents)){
+  }else if(file.exists(contents)){ # keep track of file name, for saving
     if(is.null(mode)){
-      ext <- tolower(file_ext(contents))
-      mode <- switch(
-        ext,
-        js = "javascript"
-      )
+      ext <- file_ext(contents)
+      mode <- modeFromExtension(ext)
+      if(is.null(mode)){
+        mode <- "text"
+      }
     }
     contents <- paste0(suppressWarnings(readLines(contents)), collapse = "\n")
   }
