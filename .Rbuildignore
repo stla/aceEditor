@@ -11,3 +11,4 @@
 ^inst/testFiles$
 ^inst/folderGadget\.R$
 ^inst/screenshots$
+^inst/htmlwidgets/worker-javascript\.c56345ae\.js$

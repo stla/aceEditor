@@ -23,10 +23,10 @@ empty editor, or missing to open the file currently open in RStudio}
 
 \item{mode}{the language of the contents; if \code{NULL} and the contents are
 read from a file, the mode is guessed from the extension of the file;
-run \code{\link{getAceModes()}} to get the list of available modes}
+run \code{\link{getAceModes}} to get the list of available modes}
 
 \item{theme}{the theme of the editor; if \code{NULL}, the theme is set to the
-theme currently used in RStudio; run \code{\link{getAceThemes()}} to get
+theme currently used in RStudio; run \code{\link{getAceThemes}} to get
 the list of available themes}
 
 \item{fontSize}{font size}

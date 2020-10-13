@@ -5,9 +5,9 @@
 #'   empty editor, or missing to open the file currently open in RStudio
 #' @param mode the language of the contents; if \code{NULL} and the contents are
 #'   read from a file, the mode is guessed from the extension of the file;
-#'   run \code{\link{getAceModes()}} to get the list of available modes
+#'   run \code{\link{getAceModes}} to get the list of available modes
 #' @param theme the theme of the editor; if \code{NULL}, the theme is set to the
-#'   theme currently used in RStudio; run \code{\link{getAceThemes()}} to get
+#'   theme currently used in RStudio; run \code{\link{getAceThemes}} to get
 #'   the list of available themes
 #' @param fontSize font size
 #' @param tabSize number of spaces for the indentation (usually \code{2} or
@@ -64,14 +64,14 @@ aceEditor <- function(
     if(isAvailable()){
       context <- getSourceEditorContext()
       contents <- paste0(context[["contents"]], collapse = "\n")
+      if(is.null(mode)){
+        ext <- file_ext(context[["path"]])
+        mode <- modeFromExtension(ext)
+      }
+      fileName <- basename(context[["path"]])
     }else{
       contents <- NULL
     }
-    if(is.null(mode)){
-      ext <- file_ext(context[["path"]])
-      mode <- modeFromExtension(ext)
-    }
-    fileName <- basename(context[["path"]])
   }else if(file.exists(contents)){
     ext <- file_ext(contents)
     if(tolower(ext) %in% binaryExtensions){
@@ -118,7 +118,8 @@ aceEditor <- function(
 
 
 #' Called by HTMLWidgets to produce the widget's root element.
-#' @import htmltools reactR
+#' @importFrom reactR html_dependency_corejs html_dependency_react html_dependency_reacttools
+#' @importFrom htmltools tagList tags
 #' @noRd
 aceEditor_html <- function(id, style, class, ...) {
   tagList(
@@ -126,26 +127,24 @@ aceEditor_html <- function(id, style, class, ...) {
     html_dependency_corejs(),
     html_dependency_react(),
     html_dependency_reacttools(),
-    withTags(
-      div(
-        id = "buttonsBar",
-        div(
-          id = "buttonsBlock",
-          button(
-            id = "btn-prettify",
-            "prettify"
-          ),
-          button(
-            id = "btn-format",
-            "format"
-          )
+    tags$div(
+      id = "buttonsBar",
+      tags$div(
+        id = "buttonsBlock",
+        tags$button(
+          id = "btn-prettify",
+          "prettify"
         ),
-        button(
-          id = "btn-save",
-          "save"
-        ),
-        div(style = "clear: both;")
-      )
+        tags$button(
+          id = "btn-format",
+          "format"
+        )
+      ),
+      tags$button(
+        id = "btn-save",
+        "save"
+      ),
+      tags$div(style = "clear: both;")
     ),
     tags$div(id = id, class = class, style = style)
   )
