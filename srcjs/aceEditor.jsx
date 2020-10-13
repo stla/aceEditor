@@ -265,8 +265,13 @@ import "ace-builds/src-min-noconflict/theme-xcode";
 
 /*----------------------------------------------------------------------------*/
 
-//$(document).ready(function () { 
-//});
+$(document).ready(function () { 
+  window.addEventListener("beforeunload", function (e) { 
+    if($("#btn-save").css("font-style") === "italic") {
+      document.getElementById("btn-save").click();
+    }
+  }); 
+});
 
 
 
