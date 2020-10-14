@@ -1,5 +1,5 @@
 Package: aceEditor
-Title: The 'Ace' editor as a HTML Widget
+Title: The 'Ace' Editor as a HTML Widget
 Version: 0.1.0
 Authors@R: c(
     person(
