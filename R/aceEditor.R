@@ -26,7 +26,14 @@
 #' @importFrom tools file_ext
 #'
 #' @export
-#' @examples aceEditor()
+#' @examples # in RStudio, `aceEditor()` opens the current file:
+#' aceEditor()
+#'
+#' # opens a new JavaScript file:
+#' aceEditor(NULL, mode = "javascript")
+#'
+#' # opens a given file:
+#' aceEditor(system.file("htmlwidgets", "aceEditor.css", package = "aceEditor"))
 aceEditor <- function(
   contents, mode = NULL, theme = NULL,
   fontSize = 14, tabSize = NULL,

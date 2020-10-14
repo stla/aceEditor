@@ -49,5 +49,12 @@ usage}
 Open the Ace editor.
 }
 \examples{
+# in RStudio, `aceEditor()` opens the current file:
 aceEditor()
+
+# opens a new JavaScript file:
+aceEditor(NULL, mode = "javascript")
+
+# opens a given file:
+aceEditor(system.file("htmlwidgets", "aceEditor.css", package = "aceEditor"))
 }
