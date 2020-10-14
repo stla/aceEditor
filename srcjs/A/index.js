@@ -1,11 +1,5 @@
 /* jshint esversion: 6 */
 
-export const toUTCtime = function (string) {
-  let ymd = string.split("-");
-  return Date.UTC(ymd[0], ymd[1] - 1, ymd[2]);
-};
-
-
 export const prettify = function (code, parser, tabSize) {
   let prettyCode = null,
     error = null;

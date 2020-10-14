@@ -347,7 +347,12 @@ class Ace extends React.PureComponent {
       if(result.error === null) {
         ed.setValue(result.prettyCode, -1);
       } else {
-        alert("error");
+        Swal.fire({
+          icon: "error",
+          title: "Something went wrong!",
+          html: "<pre>" + result.error + "</pre>",
+          width: "100%"
+        });
       }
     });
   

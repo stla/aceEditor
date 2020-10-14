@@ -97,3 +97,9 @@ button:hover {
 .ace_gutter {
   border-radius: 9px;
 }
+
+.swal2-html-container pre {
+  font-weight: bold;
+  color: red;
+  text-align: left;
+}
