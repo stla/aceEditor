@@ -434,6 +434,8 @@ class Ace extends React.PureComponent {
 
 
 /*----------------------------------------------------------------------------*/
+let Values; 
+
 class AceDiff extends React.PureComponent {
 
   constructor(props) {
@@ -445,6 +447,7 @@ class AceDiff extends React.PureComponent {
   }
 
   onChange(newValue) {
+    Values = newValue;
     this.setState({
       value: newValue
     });
@@ -456,8 +459,29 @@ class AceDiff extends React.PureComponent {
 
     $($(".ace_hidpi")[2]).css("left", "50%");
 
+    Values = this.props.contents;
     let fileName1 = this.props.fileName1,
         fileName2 = this.props.fileName2;
+
+    $("#btn-save1").on("click", function () {
+      let ed = ace.edit("DIFFEDITOR");
+      const a = document.createElement("a");
+      document.body.append(a);
+      a.download = fileName1;
+      a.href = "data:text/plain;base64," + btoa(Values[0]);
+      a.click();
+      a.remove();
+    });
+
+    $("#btn-save2").on("click", function () {
+      let ed = ace.edit("DIFFEDITOR");
+      const a = document.createElement("a");
+      document.body.append(a);
+      a.download = fileName2;
+      a.href = "data:text/plain;base64," + btoa(Values[1]);
+      a.click();
+      a.remove();
+    });
 
   }
 
