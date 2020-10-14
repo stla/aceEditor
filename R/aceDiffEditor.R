@@ -1,0 +1,107 @@
+#' Ace editor
+#' @description Open the Ace editor.
+#'
+#' @param file1,file2 this can be the path to a file,
+#' @param mode the language of the contents; if \code{NULL} and the contents are
+#'   read from a file, the mode is guessed from the extension of the file;
+#'   run \code{\link{getAceModes}} to get the list of available modes
+#' @param theme the theme of the editor; if \code{NULL}, the theme is set to the
+#'   theme currently used in RStudio; run \code{\link{getAceThemes}} to get
+#'   the list of available themes
+#' @param fontSize font size
+#' @param tabSize number of spaces for the indentation (usually \code{2} or
+#'   \code{4}); if \code{NULL}, it is set to the one used in RStudio
+#' @param autoCompletion logical, whether to enable the auto completion
+#' @param snippets logical, whether to enable the snippets (for example, there
+#'   is a snippet for \code{switch} in JavaScript)
+#' @param width,height dimensions; the default values are nice for usage in
+#'   the RStudio viewer pane
+#' @param elementId a HTML id for the container; this is useless for common
+#'   usage
+#'
+#' @importFrom htmlwidgets createWidget
+#' @importFrom reactR component reactMarkup
+#' @importFrom rstudioapi getSourceEditorContext isAvailable getThemeInfo
+#' @importFrom tools file_ext
+#'
+#' @export
+#' @examples # in RStudio, `aceEditor()` opens the current file:
+#' aceEditor()
+#'
+#' # opens a new JavaScript file:
+#' aceEditor(NULL, mode = "javascript")
+#'
+#' # opens an existing file:
+#' aceEditor(system.file("htmlwidgets", "aceEditor.css", package = "aceEditor"))
+aceDiffEditor <- function(
+  file1, file2, mode = NULL, theme = NULL,
+  fontSize = 14, tabSize = NULL,
+  autoCompletion = TRUE, snippets = FALSE,
+  width = NULL, height = NULL,
+  elementId = NULL
+) {
+
+  if(!is.null(mode) && !is.element(mode, getAceModes())){
+    message(
+      "Invalid `mode` argument.",
+      "Run `getAceModes()` to get the list of available modes."
+    )
+  }
+
+  if(is.null(theme)){
+    if(isAvailable()){
+      themeInfo <- getThemeInfo()
+      theme <- gsub(" ", "_", tolower(themeInfo[["editor"]]))
+    }else{
+      theme <- "cobalt"
+    }
+  }else{
+    if(!is.element(theme, getAceThemes())){
+      message(
+        "This theme is not available.",
+        "Run `getAceThemes()` to get the list of available themes."
+      )
+    }
+  }
+
+  if(TRUE){
+    ext <- file_ext(file1)
+    if(tolower(ext) %in% binaryExtensions){
+      stop("Cannot open this type of files.")
+    }
+    if(is.null(mode)){
+      mode <- modeFromExtension(ext)
+    }
+    contents <- list(
+      paste0(suppressWarnings(readLines(file1)), collapse = "\n"),
+      paste0(suppressWarnings(readLines(file2)), collapse = "\n")
+    )
+  }
+  if(is.null(mode)){
+    mode <- "text"
+  }
+
+  # describe a React component to send to the browser for rendering.
+  editor <- component(
+    "AceDiff",
+    list(
+      contents = contents,
+      mode = mode,
+      theme = theme,
+      fontSize = fontSize,
+      tabSize = ifelse(is.null(tabSize), getTabSize(), tabSize),
+      autoCompletion = autoCompletion,
+      snippets = snippets
+    )
+  )
+
+  # create widget
+  createWidget(
+    name = "aceEditor",
+    x = reactMarkup(editor),
+    width = width,
+    height = height,
+    package = "aceEditor",
+    elementId = elementId
+  )
+}

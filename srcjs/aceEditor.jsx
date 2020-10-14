@@ -13,7 +13,7 @@ import * as A from "./A";
 //ace.config.setModuleUrl('ace/mode/javascript_worker', require('file-loader?esModule=false!ace-builds/src-min-noconflict/worker-javascript.js'))
 
 import AceEditor from "react-ace";
-import DiffEditor from "react-ace";
+import { diff as DiffEditor } from "react-ace";
 
 //import jsonWorkerUrl from "file-loader!ace-builds/src-min-noconflict/worker-json";
 //ace.config.setModuleUrl("ace/mode/json_worker", jsonWorkerUrl);
@@ -27,7 +27,7 @@ import DiffEditor from "react-ace";
 
 import "ace-builds/src-min-noconflict/ext-language_tools";
 import "ace-builds/src-min-noconflict/ext-searchbox";
-
+/*
 import "ace-builds/src-min-noconflict/snippets/c_cpp";
 import "ace-builds/src-min-noconflict/snippets/css";
 import "ace-builds/src-min-noconflict/snippets/fortran";
@@ -224,6 +224,8 @@ import "ace-builds/src-min-noconflict/mode-xml";
 import "ace-builds/src-min-noconflict/mode-xquery";
 import "ace-builds/src-min-noconflict/mode-yaml";
 import "ace-builds/src-min-noconflict/mode-zeek";
+*/
+import "ace-builds/src-min-noconflict/mode-r";
 
 import "ace-builds/src-min-noconflict/theme-ambiance";
 import "ace-builds/src-min-noconflict/theme-chaos";
@@ -449,6 +451,7 @@ class AceDiff extends React.PureComponent {
   render() {
     return (
       <DiffEditor
+        name="UNIQUE_ID_OF_DIV"
         theme={this.props.theme}
         mode={this.props.mode}
         value={this.state.value}
