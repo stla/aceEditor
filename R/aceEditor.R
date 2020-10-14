@@ -72,7 +72,7 @@ aceEditor <- function(
     }else{
       contents <- NULL
     }
-  }else if(file.exists(contents)){
+  }else if(!is.null(contents) && file.exists(contents)){
     ext <- file_ext(contents)
     if(tolower(ext) %in% binaryExtensions){
       stop("Cannot open this type of files.")
