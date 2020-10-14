@@ -400,7 +400,7 @@ class Ace extends React.PureComponent {
       const a = document.createElement("a");
       document.body.append(a);
       a.download = fileName;
-      a.href = "data:text/plain;base64," + btoa(ed.getValue());
+      a.href = "data:text/plain;base64," + A.utf8_to_base64(ed.getValue());
       a.click();
       a.remove();
     });
@@ -468,7 +468,7 @@ class AceDiff extends React.PureComponent {
       const a = document.createElement("a");
       document.body.append(a);
       a.download = fileName1;
-      a.href = "data:text/plain;base64," + btoa(Values[0]);
+      a.href = "data:text/plain;base64," + A.utf8_to_base64(Values[0]);
       a.click();
       a.remove();
     });
@@ -478,7 +478,7 @@ class AceDiff extends React.PureComponent {
       const a = document.createElement("a");
       document.body.append(a);
       a.download = fileName2;
-      a.href = "data:text/plain;base64," + btoa(Values[1]);
+      a.href = "data:text/plain;base64," + A.utf8_to_base64(Values[1]);
       a.click();
       a.remove();
     });

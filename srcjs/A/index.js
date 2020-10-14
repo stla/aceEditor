@@ -1,5 +1,10 @@
 /* jshint esversion: 6 */
 
+export const utf8_to_base64 = function(str) {
+  return btoa(unescape(encodeURIComponent(str)));
+};
+
+
 export const prettify = function (code, parser, tabSize) {
   let prettyCode = null,
     error = null;
