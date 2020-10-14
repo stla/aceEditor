@@ -26,6 +26,11 @@ Authors@R: c(
       "jQuery contributors",
       role = c("ctb", "cph"),
       comment = "'jQuery' library"
+    ),
+    person(
+      list("Tristan", "Limon"), list("Edwards", "Monte"),
+      role = c("ctb", "cph"),
+      comment = "'sweetalert2' library"
     )
   )
 Description: Wraps the 'Ace' editor in a HTML widget. The 'Ace' editor has support for many languages. It can be opened in the viewer pane of 'RStudio', and this provides a second source editor.
