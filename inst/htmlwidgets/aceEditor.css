@@ -103,3 +103,14 @@ button:hover {
   color: red;
   text-align: left;
 }
+
+.codeMarker {
+  background: #ffff0020;
+  position: absolute;
+  z-index: 20;
+}
+
+.ace_hidpi {
+  width: 50% !important;
+  height: 100% !important;
+}

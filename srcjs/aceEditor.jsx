@@ -448,6 +448,12 @@ class AceDiff extends React.PureComponent {
     });
   }
 
+  componentDidMount() {
+
+    $($(".ace_hidpi")[2]).css("left", "50%");
+
+  }
+
   render() {
     return (
       <DiffEditor
@@ -457,7 +463,7 @@ class AceDiff extends React.PureComponent {
         value={this.state.value}
         fontSize={this.props.fontSize}
         editorProps={{ 
-          $blockScrolling: true 
+          $blockScrolling: false 
         }}
         setOptions={{
           useWorker: false, 
@@ -468,6 +474,7 @@ class AceDiff extends React.PureComponent {
         }}
         showGutter={true}
         onChange={this.onChange}
+        wrapEnabled={false}
       />
     );
   }
