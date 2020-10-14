@@ -55,6 +55,6 @@ aceEditor()
 # opens a new JavaScript file:
 aceEditor(NULL, mode = "javascript")
 
-# opens a given file:
+# opens an existing file:
 aceEditor(system.file("htmlwidgets", "aceEditor.css", package = "aceEditor"))
 }
