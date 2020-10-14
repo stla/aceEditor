@@ -19,20 +19,16 @@
 #' @param elementId a HTML id for the container; this is useless for common
 #'   usage
 #'
+#' @note The diff editor does not correctly reacts when one resizes the RStudio
+#'   viewer pane. You have to resize it before opening the diff editor.
+#'
 #' @importFrom htmlwidgets createWidget
 #' @importFrom reactR component reactMarkup
-#' @importFrom rstudioapi getSourceEditorContext isAvailable getThemeInfo
 #' @importFrom tools file_ext
 #'
 #' @export
-#' @examples # in RStudio, `aceEditor()` opens the current file:
-#' aceEditor()
-#'
-#' # opens a new JavaScript file:
-#' aceEditor(NULL, mode = "javascript")
-#'
-#' # opens an existing file:
-#' aceEditor(system.file("htmlwidgets", "aceEditor.css", package = "aceEditor"))
+#' @examples file <- system.file("htmlwidgets", "aceEditor.css", package = "aceEditor")
+#' aceDiffEditor(file, file)
 aceDiffEditor <- function(
   file1, file2, mode = NULL, theme = NULL,
   fontSize = 14, tabSize = NULL,

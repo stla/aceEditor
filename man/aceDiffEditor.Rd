@@ -48,13 +48,11 @@ usage}
 \description{
 Open the Ace diff editor.
 }
+\note{
+The diff editor does not correctly reacts when one resizes the RStudio
+  viewer pane. You have to resize it before opening the diff editor.
+}
 \examples{
-# in RStudio, `aceEditor()` opens the current file:
-aceEditor()
-
-# opens a new JavaScript file:
-aceEditor(NULL, mode = "javascript")
-
-# opens an existing file:
-aceEditor(system.file("htmlwidgets", "aceEditor.css", package = "aceEditor"))
+file <- system.file("htmlwidgets", "aceEditor.css", package = "aceEditor")
+aceDiffEditor(file, file)
 }
