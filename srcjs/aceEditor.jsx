@@ -456,6 +456,9 @@ class AceDiff extends React.PureComponent {
 
     $($(".ace_hidpi")[2]).css("left", "50%");
 
+    let fileName1 = this.props.fileName1,
+        fileName2 = this.props.fileName2;
+
   }
 
   render() {

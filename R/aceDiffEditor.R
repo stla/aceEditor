@@ -1,9 +1,9 @@
-#' Ace editor
-#' @description Open the Ace editor.
+#' Ace diff editor
+#' @description Open the Ace diff editor.
 #'
-#' @param file1,file2 this can be the path to a file,
-#' @param mode the language of the contents; if \code{NULL} and the contents are
-#'   read from a file, the mode is guessed from the extension of the file;
+#' @param file1,file2 paths to files
+#' @param mode the language of the files; if \code{NULL}, the mode is guessed
+#'   from the extension of the first file;
 #'   run \code{\link{getAceModes}} to get the list of available modes
 #' @param theme the theme of the editor; if \code{NULL}, the theme is set to the
 #'   theme currently used in RStudio; run \code{\link{getAceThemes}} to get
@@ -64,22 +64,31 @@ aceDiffEditor <- function(
     }
   }
 
-  if(TRUE){
-    ext <- file_ext(file1)
-    if(tolower(ext) %in% binaryExtensions){
-      stop("Cannot open this type of files.")
-    }
-    if(is.null(mode)){
-      mode <- modeFromExtension(ext)
-    }
-    contents <- list(
-      paste0(suppressWarnings(readLines(file1)), collapse = "\n"),
-      paste0(suppressWarnings(readLines(file2)), collapse = "\n")
-    )
+  if(!file.exists(file1)){
+    stop(sprintf("File '%s' not found.", file1))
+  }
+  if(!file.exists(file2)){
+    stop(sprintf("File '%s' not found.", file2))
+  }
+
+  ext <- file_ext(file1)
+  if(tolower(ext) %in% binaryExtensions){
+    stop(sprintf("Cannot open files of type '%s'.", ext))
+  }
+  ext2 <- file_ext(file2)
+  if(tolower(ext2) %in% binaryExtensions){
+    stop(sprintf("Cannot open files of type '%s'.", ext2))
   }
   if(is.null(mode)){
-    mode <- "text"
+    if(is.null(mode <- modeFromExtension(ext))){
+      message("Unrecognized language; please use the `mode` argument.")
+      mode <- "text"
+    }
   }
+  contents <- list(
+    paste0(suppressWarnings(readLines(file1)), collapse = "\n"),
+    paste0(suppressWarnings(readLines(file2)), collapse = "\n")
+  )
 
   # describe a React component to send to the browser for rendering.
   editor <- component(
@@ -91,7 +100,9 @@ aceDiffEditor <- function(
       fontSize = fontSize,
       tabSize = ifelse(is.null(tabSize), getTabSize(), tabSize),
       autoCompletion = autoCompletion,
-      snippets = snippets
+      snippets = snippets,
+      fileName1 = basename(file1),
+      fileName2 = basename(file2)
     )
   )
 
