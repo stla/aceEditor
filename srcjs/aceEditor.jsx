@@ -13,6 +13,7 @@ import * as A from "./A";
 //ace.config.setModuleUrl('ace/mode/javascript_worker', require('file-loader?esModule=false!ace-builds/src-min-noconflict/worker-javascript.js'))
 
 import AceEditor from "react-ace";
+import DiffEditor from "react-ace";
 
 //import jsonWorkerUrl from "file-loader!ace-builds/src-min-noconflict/worker-json";
 //ace.config.setModuleUrl("ace/mode/json_worker", jsonWorkerUrl);
@@ -265,13 +266,8 @@ import "ace-builds/src-min-noconflict/theme-xcode";
 
 /*----------------------------------------------------------------------------*/
 
-$(document).ready(function () { 
-  window.addEventListener("beforeunload", function (e) { 
-    if($("#btn-save").css("font-style") === "italic") {
-      document.getElementById("btn-save").click();
-    }
-  }); 
-});
+//$(document).ready(function () { 
+//});
 
 
 
@@ -295,7 +291,13 @@ class Ace extends React.PureComponent {
         fileName = this.props.fileName,
         tabSize = this.props.tabSize;
 
-    // disable buttons according to mode 
+    window.addEventListener("beforeunload", function (e) { 
+      if($("#btn-save").css("font-style") === "italic") {
+        document.getElementById("btn-save").click();
+      }
+    }); 
+      
+    // hide buttons according to mode 
     let formattable = [
       "javascript", "jsx", "css", "scss", "html", "rhtml"
     ];
@@ -426,4 +428,48 @@ class Ace extends React.PureComponent {
   }
 }
 
-reactWidget("aceEditor", "output", { Ace: Ace }, {});
+
+/*----------------------------------------------------------------------------*/
+class AceDiff extends React.PureComponent {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: props.contents
+    };
+    this.onChange = this.onChange.bind(this);
+  }
+
+  onChange(newValue) {
+    this.setState({
+      value: newValue
+    });
+  }
+
+  render() {
+    return (
+      <DiffEditor
+        theme={this.props.theme}
+        mode={this.props.mode}
+        value={this.state.value}
+        fontSize={this.props.fontSize}
+        editorProps={{ 
+          $blockScrolling: true 
+        }}
+        setOptions={{
+          useWorker: false, 
+          tabSize: this.props.tabSize,
+          enableBasicAutocompletion: false,
+          enableLiveAutocompletion: this.props.autoCompletion,
+          enableSnippets: this.props.snippets
+        }}
+        showGutter={true}
+        onChange={this.onChange}
+      />
+    );
+  }
+}
+
+
+/* -------------------------------------------------------------------------- */
+reactWidget("aceEditor", "output", { Ace: Ace, AceDiff: AceDiff }, {});
