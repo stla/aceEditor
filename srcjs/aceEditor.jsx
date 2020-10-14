@@ -289,6 +289,8 @@ class Ace extends React.PureComponent {
 
   componentDidMount() {
 
+    $("#buttonsBar").show();
+
     let mode = this.props.mode,
         fileName = this.props.fileName,
         tabSize = this.props.tabSize;
@@ -315,7 +317,7 @@ class Ace extends React.PureComponent {
 
     // buttons actions
     $("#btn-prettify").on("click", function () {
-      let ed = ace.edit("UNIQUE_ID_OF_DIV");
+      let ed = ace.edit("EDITOR");
       let parser;
       switch (mode) {
         case "javascript":
@@ -361,7 +363,7 @@ class Ace extends React.PureComponent {
     });
   
     $("#btn-format").on("click", function () {
-      let ed = ace.edit("UNIQUE_ID_OF_DIV");
+      let ed = ace.edit("EDITOR");
       let parser;
       switch (mode) {
         case "javascript":
@@ -394,7 +396,7 @@ class Ace extends React.PureComponent {
   
     $("#btn-save").on("click", function () {
       $("#btn-save").css("font-style", "normal");
-      let ed = ace.edit("UNIQUE_ID_OF_DIV");
+      let ed = ace.edit("EDITOR");
       const a = document.createElement("a");
       document.body.append(a);
       a.download = fileName;
@@ -408,7 +410,7 @@ class Ace extends React.PureComponent {
   render() {
     return (
       <AceEditor
-        name="UNIQUE_ID_OF_DIV"
+        name="EDITOR"
         theme={this.props.theme}
         mode={this.props.mode}
         value={this.props.contents}
@@ -450,6 +452,8 @@ class AceDiff extends React.PureComponent {
 
   componentDidMount() {
 
+    $("#saveButtons").show();
+
     $($(".ace_hidpi")[2]).css("left", "50%");
 
   }
@@ -457,7 +461,7 @@ class AceDiff extends React.PureComponent {
   render() {
     return (
       <DiffEditor
-        name="UNIQUE_ID_OF_DIV"
+        name="DIFFEDITOR"
         theme={this.props.theme}
         mode={this.props.mode}
         value={this.state.value}

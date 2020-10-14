@@ -8,7 +8,8 @@ body {
   padding: 0 !important;
 }
 
-#buttonsBar {
+#buttonsBar, #saveButtons {
+  display: none;
   margin-bottom: 5px;
   width: 100%;
 }
@@ -79,10 +80,10 @@ button:hover {
 
 .aceEditor {
   position: relative;
-  display: block;
+  display: inline-block;
 }
 
-#UNIQUE_ID_OF_DIV {
+#EDITOR {
   position: absolute;
   top: 0;
   right: 0;
@@ -94,7 +95,7 @@ button:hover {
   border-radius: 9px;
 }
 
-.ace_gutter {
+#EDITOR .ace_gutter {
   border-radius: 9px;
 }
 
@@ -104,13 +105,32 @@ button:hover {
   text-align: left;
 }
 
+#DIFFEDITOR {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 25px;
+  left: 0;
+  width: unset !important;
+  height: unset !important;
+  border: 1px solid silver;
+}
+
+.ace_hidpi {
+  width: 50% !important;
+  height: 100% !important;
+}
+
 .codeMarker {
   background: #ffff0020;
   position: absolute;
   z-index: 20;
 }
 
-.ace_hidpi {
-  width: 50% !important;
-  height: 100% !important;
+#btn-save1 {
+  float: left;
+}
+
+#btn-save1 {
+  float: right;
 }
