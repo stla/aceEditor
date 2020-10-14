@@ -1,3 +1,8 @@
+@font-face {
+  font-family: "UbuntuMono";
+  src: url("UbuntuMono-Regular.ttf") format("truetype");
+}
+
 html, body {
   margin: 0 !important;
 }
