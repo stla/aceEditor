@@ -423,7 +423,8 @@ class Ace extends React.PureComponent {
           tabSize: this.props.tabSize,
           enableBasicAutocompletion: false,
           enableLiveAutocompletion: this.props.autoCompletion,
-          enableSnippets: this.props.snippets
+          enableSnippets: this.props.snippets,
+          fontFamily: "UbuntuMono"
         }}
         showGutter={true}
         onChange={onChange}

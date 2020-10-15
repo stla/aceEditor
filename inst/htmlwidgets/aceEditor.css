@@ -18,7 +18,7 @@ body {
   margin-bottom: 5px;
   width: 100%;
   background-color: #363954;
-  background-image: linear-gradient(90deg, #363954 0%, darkslategray 50%, powderblue 100%);
+  background-image: linear-gradient(90deg, darkslategray 20%, powderblue 70%, #363954 100%);
 	-webkit-border-radius: 3px;
 	-moz-border-radius: 3px;
   border-radius: 3px;
