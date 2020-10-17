@@ -98,10 +98,15 @@ aceEditor <- function(
     fileName <- "untitled"
   }
 
+  if(is.null(elementId)){
+    elementId <- paste0("AEW-", randomString(15L))
+  }
+
   # describe a React component to send to the browser for rendering.
   editor <- component(
     "Ace",
     list(
+      ID = elementId,
       contents = contents,
       mode = mode,
       theme = theme,

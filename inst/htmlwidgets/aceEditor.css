@@ -13,7 +13,7 @@ body {
   padding: 0 !important;
 }
 
-#buttonsBar, #saveButtons {
+.buttonsBar, #saveButtons {
   display: none;
   margin-bottom: 5px;
   width: 100%;
@@ -25,7 +25,7 @@ body {
 }
 
 
-#buttonsBlock {
+.buttonsBlock {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
@@ -33,7 +33,7 @@ body {
 /*  justify-content: space-between; */
 }
 
-#btn-save {
+.rightButton {
   display: none;
   float: right;
 }
@@ -73,7 +73,7 @@ button:hover {
 	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#771e86, endColorstr=#a70be4);
 }
 
-#btn-prettify, #btn-format {
+.leftButton {
   margin-right: 5px;
 }
 
@@ -98,7 +98,7 @@ button:hover {
   display: inline-block;
 }
 
-#EDITOR {
+div[id^=EDITOR] {
   position: absolute;
   top: 0;
   right: 0;
@@ -112,7 +112,7 @@ button:hover {
   border-radius: 9px;
 }
 
-#EDITOR .ace_gutter {
+div[id^=EDITOR] .ace_gutter {
 	-webkit-border-top-left-radius: 9px;
 	-moz-border-top-left-radius: 9px;
   border-top-left-radius: 9px;

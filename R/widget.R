@@ -10,20 +10,23 @@ aceEditor_html <- function(id, style, class, ...) {
     html_dependency_reacttools(),
     tags$div(
       tags$div(
-        id = "buttonsBar",
+        class = "buttonsBar",
         tags$div(
-          id = "buttonsBlock",
+          class = "buttonsBlock",
           tags$button(
-            id = "btn-prettify",
+            id = paste0("btn-prettify_", id),
+            class = "leftButton",
             "prettify"
           ),
           tags$button(
-            id = "btn-format",
+            id = paste0("btn-format_", id),
+            class = "leftButton",
             "format"
           )
         ),
         tags$button(
-          id = "btn-save",
+          id = paste0("btn-save_", id),
+          class = "rightButton",
           "save"
         ),
         tags$div(style = "clear: both;")
