@@ -276,28 +276,38 @@ import "ace-builds/src-min-noconflict/theme-xcode";
 
 
 /*----------------------------------------------------------------------------*/
-function onChange(newValue) {
-  $("#btn-save").show(1000);
-  $("#btn-save").css("font-style", "italic");
-}
 
 class Ace extends React.PureComponent {
 
   constructor(props) {
     super(props);
+    this.state = {
+      ID: props.ID
+    };
+    this.onChange = this.onChange.bind(this);
+  }
+
+  onChange(newValue) {
+    let $btn = $("#btn-save_" + this.state.ID);
+    $btn.show(1000);
+    $btn.css("font-style", "italic");
   }
 
   componentDidMount() {
 
-    $("#buttonsBar").show();
+    $("#buttonsBar_" + this.props.ID).show();
 
     let mode = this.props.mode,
         fileName = this.props.fileName,
-        tabSize = this.props.tabSize;
+        tabSize = this.props.tabSize,
+        btnSave = "#btn-save_" + this.props.ID,
+        $btnFormat = $("#btn-format_" + this.props.ID),
+        $btnPrettify = $("#btn-prettify_" + this.props.ID),
+        EDITOR = this.props.ID;
 
     window.addEventListener("beforeunload", function (e) { 
-      if($("#btn-save").css("font-style") === "italic") {
-        document.getElementById("btn-save").click();
+      if($(btnSave).css("font-style") === "italic") {
+        document.querySelector(btnSave).click();
       }
     }); 
       
@@ -309,15 +319,15 @@ class Ace extends React.PureComponent {
       "markdown", "yaml", "typescript"
     ]);
     if(formattable.indexOf(mode) === -1) {
-      $("#btn-format").hide();
+      $btnFormat.hide();
     }
     if(prettifiable.indexOf(mode) === -1) {
-      $("#btn-prettify").hide();
+      $btnPrettify.hide();
     }
 
     // buttons actions
-    $("#btn-prettify").on("click", function () {
-      let ed = ace.edit("EDITOR");
+    $btnPrettify.on("click", function () {
+      let ed = ace.edit(EDITOR);
       let parser;
       switch (mode) {
         case "javascript":
@@ -362,8 +372,8 @@ class Ace extends React.PureComponent {
       }
     });
   
-    $("#btn-format").on("click", function () {
-      let ed = ace.edit("EDITOR");
+    $btnFormat.on("click", function () {
+      let ed = ace.edit(EDITOR);
       let parser;
       switch (mode) {
         case "javascript":
@@ -394,9 +404,9 @@ class Ace extends React.PureComponent {
       }
     });
   
-    $("#btn-save").on("click", function () {
-      $("#btn-save").css("font-style", "normal");
-      let ed = ace.edit("EDITOR");
+    $(btnSave).on("click", function () {
+      $(btnSave).css("font-style", "normal");
+      let ed = ace.edit(EDITOR);
       const a = document.createElement("a");
       document.body.append(a);
       a.download = fileName;
@@ -410,7 +420,7 @@ class Ace extends React.PureComponent {
   render() {
     return (
       <AceEditor
-        name="EDITOR"
+        name={EDITOR}
         theme={this.props.theme}
         mode={this.props.mode}
         value={this.props.contents}

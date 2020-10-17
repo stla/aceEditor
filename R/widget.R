@@ -10,6 +10,7 @@ aceEditor_html <- function(id, style, class, ...) {
     html_dependency_reacttools(),
     tags$div(
       tags$div(
+        id = paste0("buttonsBar_", id),
         class = "buttonsBar",
         tags$div(
           class = "buttonsBlock",
