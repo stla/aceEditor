@@ -316,7 +316,7 @@ class Ace extends React.PureComponent {
       "javascript", "jsx", "css", "scss", "html", "rhtml"
     ];
     let prettifiable = formattable.concat([
-      "markdown", "yaml", "typescript"
+      "markdown", "yaml", "typescript", "svg"
     ]);
     if(formattable.indexOf(mode) === -1) {
       $btnFormat.hide();
@@ -356,6 +356,9 @@ class Ace extends React.PureComponent {
           break;
         case "typescript":
           parser = "typescript";
+          break;
+        case "svg":
+          parser = "html";
           break;
       }
       let result = A.prettify(ed.getValue(), parser, tabSize);
