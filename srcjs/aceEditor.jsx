@@ -303,7 +303,7 @@ class Ace extends React.PureComponent {
         btnSave = "#btn-save_" + this.props.ID,
         $btnFormat = $("#btn-format_" + this.props.ID),
         $btnPrettify = $("#btn-prettify_" + this.props.ID),
-        EDITOR = this.props.ID;
+        EDITOR = "EDITOR" + this.props.ID;
 
     window.addEventListener("beforeunload", function (e) { 
       if($(btnSave).css("font-style") === "italic") {
@@ -420,7 +420,7 @@ class Ace extends React.PureComponent {
   render() {
     return (
       <AceEditor
-        name={EDITOR}
+        name={"EDITOR" + this.props.ID}
         theme={this.props.theme}
         mode={this.props.mode}
         value={this.props.contents}
@@ -437,7 +437,7 @@ class Ace extends React.PureComponent {
           fontFamily: "UbuntuMono"
         }}
         showGutter={true}
-        onChange={onChange}
+        onChange={this.onChange}
       />
     );
   }

@@ -57,4 +57,55 @@ aceEditor(NULL, mode = "javascript")
 
 # opens an existing file:
 aceEditor(system.file("htmlwidgets", "aceEditor.css", package = "aceEditor"))
+
+
+# two editors side-by-side:
+library(aceEditor)
+library(htmltools)
+
+ed1 <- aceEditor(
+  width = "100\%", height = "calc(100vh - 10px)"
+)
+ed2 <- aceEditor(
+  width = "100\%", height = "calc(100vh - 10px)"
+)
+
+if(interactive()){
+  browsable(
+    div(
+      div(ed1, style="position: fixed; left: 1vw; right: 51vw;"),
+      div(ed2, style="position: fixed; left: 51vw; right: 1vw;")
+    )
+  )
+}
+
+
+# two stacked editors:
+library(aceEditor)
+library(htmltools)
+
+ed1 <- aceEditor(
+  height = "calc(50vh - 10px)", width = "100\%"
+)
+ed2 <- aceEditor(
+  height = "calc(50vh - 10px)", width = "100\%"
+)
+
+if(interactive()){
+  browsable(
+    tagList(
+      tags$style(HTML(
+        ".editor {",
+        "  position: fixed;",
+        "  left: 1vw;",
+        "  width: 98vw;",
+        "}"
+      )),
+      div(
+        div(ed1, class = "editor", style = "bottom: calc(50vh - 25px);"),
+        div(ed2, class = "editor", style = "top: calc(50vh);")
+      )
+    )
+  )
+}
 }
