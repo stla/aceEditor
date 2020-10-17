@@ -27,7 +27,7 @@ import { diff as DiffEditor } from "react-ace";
 
 import "ace-builds/src-min-noconflict/ext-language_tools";
 import "ace-builds/src-min-noconflict/ext-searchbox";
-/*
+
 import "ace-builds/src-min-noconflict/snippets/c_cpp";
 import "ace-builds/src-min-noconflict/snippets/css";
 import "ace-builds/src-min-noconflict/snippets/fortran";
@@ -224,8 +224,6 @@ import "ace-builds/src-min-noconflict/mode-xml";
 import "ace-builds/src-min-noconflict/mode-xquery";
 import "ace-builds/src-min-noconflict/mode-yaml";
 import "ace-builds/src-min-noconflict/mode-zeek";
-*/
-import "ace-builds/src-min-noconflict/mode-r";
 
 import "ace-builds/src-min-noconflict/theme-ambiance";
 import "ace-builds/src-min-noconflict/theme-chaos";
