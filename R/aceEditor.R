@@ -62,6 +62,7 @@ aceEditor <- function(
         "This theme is not available.",
         "Run `getAceThemes()` to get the list of available themes."
       )
+      theme <- "cobalt"
     }
   }
 

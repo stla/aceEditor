@@ -12010,14 +12010,18 @@ module.exports = function (module) {
 /*!**************************!*\
   !*** ./srcjs/A/index.js ***!
   \**************************/
-/*! exports provided: prettify, format */
+/*! exports provided: utf8_to_base64, prettify, format */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "utf8_to_base64", function() { return utf8_to_base64; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "prettify", function() { return prettify; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "format", function() { return format; });
 /* jshint esversion: 6 */
+var utf8_to_base64 = function utf8_to_base64(str) {
+  return btoa(unescape(encodeURIComponent(str)));
+};
 var prettify = function prettify(code, parser, tabSize) {
   var prettyCode = null,
       error = null;
@@ -12599,7 +12603,7 @@ var Ace = /*#__PURE__*/function (_React$PureComponent) {
         var a = document.createElement("a");
         document.body.append(a);
         a.download = fileName;
-        a.href = "data:text/plain;base64," + btoa(ed.getValue());
+        a.href = "data:text/plain;base64," + _A__WEBPACK_IMPORTED_MODULE_1__["utf8_to_base64"](ed.getValue());
         a.click();
         a.remove();
       });
@@ -12621,7 +12625,8 @@ var Ace = /*#__PURE__*/function (_React$PureComponent) {
           tabSize: this.props.tabSize,
           enableBasicAutocompletion: false,
           enableLiveAutocompletion: this.props.autoCompletion,
-          enableSnippets: this.props.snippets
+          enableSnippets: this.props.snippets,
+          fontFamily: "UbuntuMono"
         },
         showGutter: true,
         onChange: onChange
@@ -12675,8 +12680,7 @@ var AceDiff = /*#__PURE__*/function (_React$PureComponent2) {
         var a = document.createElement("a");
         document.body.append(a);
         a.download = fileName1;
-        console.log("Values", Values);
-        a.href = "data:text/plain;base64," + btoa(Values[0]);
+        a.href = "data:text/plain;base64," + _A__WEBPACK_IMPORTED_MODULE_1__["utf8_to_base64"](Values[0]);
         a.click();
         a.remove();
       });
@@ -12685,7 +12689,7 @@ var AceDiff = /*#__PURE__*/function (_React$PureComponent2) {
         var a = document.createElement("a");
         document.body.append(a);
         a.download = fileName2;
-        a.href = "data:text/plain;base64," + btoa(ed.getValue()[1]);
+        a.href = "data:text/plain;base64," + _A__WEBPACK_IMPORTED_MODULE_1__["utf8_to_base64"](Values[1]);
         a.click();
         a.remove();
       });
@@ -12707,7 +12711,8 @@ var AceDiff = /*#__PURE__*/function (_React$PureComponent2) {
           tabSize: this.props.tabSize,
           enableBasicAutocompletion: false,
           enableLiveAutocompletion: this.props.autoCompletion,
-          enableSnippets: this.props.snippets
+          enableSnippets: this.props.snippets,
+          fontFamily: "UbuntuMono"
         },
         showGutter: true,
         onChange: this.onChange,
