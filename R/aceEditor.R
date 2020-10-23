@@ -34,6 +34,57 @@
 #'
 #' # opens an existing file:
 #' aceEditor(system.file("htmlwidgets", "aceEditor.css", package = "aceEditor"))
+#'
+#'
+#' # two editors side-by-side:
+#' library(aceEditor)
+#' library(htmltools)
+#'
+#' ed1 <- aceEditor(
+#'   width = "100%", height = "calc(100vh - 10px)"
+#' )
+#' ed2 <- aceEditor(
+#'   width = "100%", height = "calc(100vh - 10px)"
+#' )
+#'
+#' if(interactive()){
+#'   browsable(
+#'     div(
+#'       div(ed1, style="position: fixed; left: 1vw; right: 51vw;"),
+#'       div(ed2, style="position: fixed; left: 51vw; right: 1vw;")
+#'     )
+#'   )
+#' }
+#'
+#'
+#' # two stacked editors:
+#' library(aceEditor)
+#' library(htmltools)
+#'
+#' ed1 <- aceEditor(
+#'   height = "calc(50vh - 10px)", width = "100%"
+#' )
+#' ed2 <- aceEditor(
+#'   height = "calc(50vh - 10px)", width = "100%"
+#' )
+#'
+#' if(interactive()){
+#'   browsable(
+#'     tagList(
+#'       tags$style(HTML(
+#'         ".editor {",
+#'         "  position: fixed;",
+#'         "  left: 1vw;",
+#'         "  width: 98vw;",
+#'         "}"
+#'       )),
+#'       div(
+#'         div(ed1, class = "editor", style = "bottom: calc(50vh - 25px);"),
+#'         div(ed2, class = "editor", style = "top: calc(50vh);")
+#'       )
+#'     )
+#'   )
+#' }
 aceEditor <- function(
   contents, mode = NULL, theme = NULL,
   fontSize = 14, tabSize = NULL,
@@ -62,6 +113,7 @@ aceEditor <- function(
         "This theme is not available.",
         "Run `getAceThemes()` to get the list of available themes."
       )
+      theme <- "cobalt"
     }
   }
 
@@ -97,10 +149,15 @@ aceEditor <- function(
     fileName <- "untitled"
   }
 
+  if(is.null(elementId)){
+    elementId <- paste0("AEW-", randomString(15L))
+  }
+
   # describe a React component to send to the browser for rendering.
   editor <- component(
     "Ace",
     list(
+      ID = elementId,
       contents = contents,
       mode = mode,
       theme = theme,
@@ -120,39 +177,5 @@ aceEditor <- function(
     height = height,
     package = "aceEditor",
     elementId = elementId
-  )
-}
-
-
-#' Called by HTMLWidgets to produce the widget's root element.
-#' @importFrom reactR html_dependency_corejs html_dependency_react html_dependency_reacttools
-#' @importFrom htmltools tagList tags
-#' @noRd
-aceEditor_html <- function(id, style, class, ...) {
-  tagList(
-    # Necessary for RStudio viewer version < 1.2
-    html_dependency_corejs(),
-    html_dependency_react(),
-    html_dependency_reacttools(),
-    tags$div(
-      id = "buttonsBar",
-      tags$div(
-        id = "buttonsBlock",
-        tags$button(
-          id = "btn-prettify",
-          "prettify"
-        ),
-        tags$button(
-          id = "btn-format",
-          "format"
-        )
-      ),
-      tags$button(
-        id = "btn-save",
-        "save"
-      ),
-      tags$div(style = "clear: both;")
-    ),
-    tags$div(id = id, class = class, style = style)
   )
 }

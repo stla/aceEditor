@@ -13,6 +13,7 @@ import * as A from "./A";
 //ace.config.setModuleUrl('ace/mode/javascript_worker', require('file-loader?esModule=false!ace-builds/src-min-noconflict/worker-javascript.js'))
 
 import AceEditor from "react-ace";
+import { diff as DiffEditor } from "react-ace";
 
 //import jsonWorkerUrl from "file-loader!ace-builds/src-min-noconflict/worker-json";
 //ace.config.setModuleUrl("ace/mode/json_worker", jsonWorkerUrl);
@@ -265,53 +266,66 @@ import "ace-builds/src-min-noconflict/theme-xcode";
 
 /*----------------------------------------------------------------------------*/
 
-$(document).ready(function () { 
-  window.addEventListener("beforeunload", function (e) { 
-    if($("#btn-save").css("font-style") === "italic") {
-      document.getElementById("btn-save").click();
-    }
-  }); 
-});
+//$(document).ready(function () { 
+//});
 
 
 
 
 
 /*----------------------------------------------------------------------------*/
-function onChange(newValue) {
-  $("#btn-save").show(1000);
-  $("#btn-save").css("font-style", "italic");
-}
 
 class Ace extends React.PureComponent {
 
   constructor(props) {
     super(props);
+    this.state = {
+      ID: props.ID
+    };
+    this.onChange = this.onChange.bind(this);
+  }
+
+  onChange(newValue) {
+    let $btn = $("#btn-save_" + this.state.ID);
+    $btn.show(1000);
+    $btn.css("font-style", "italic");
   }
 
   componentDidMount() {
 
+    $("#buttonsBar_" + this.props.ID).show();
+
     let mode = this.props.mode,
         fileName = this.props.fileName,
-        tabSize = this.props.tabSize;
+        tabSize = this.props.tabSize,
+        btnSave = "#btn-save_" + this.props.ID,
+        $btnFormat = $("#btn-format_" + this.props.ID),
+        $btnPrettify = $("#btn-prettify_" + this.props.ID),
+        EDITOR = "EDITOR" + this.props.ID;
 
-    // disable buttons according to mode 
+    window.addEventListener("beforeunload", function (e) { 
+      if($(btnSave).css("font-style") === "italic") {
+        document.querySelector(btnSave).click();
+      }
+    }); 
+      
+    // hide buttons according to mode 
     let formattable = [
       "javascript", "jsx", "css", "scss", "html", "rhtml"
     ];
     let prettifiable = formattable.concat([
-      "markdown", "yaml", "typescript"
+      "markdown", "yaml", "typescript", "svg"
     ]);
     if(formattable.indexOf(mode) === -1) {
-      $("#btn-format").hide();
+      $btnFormat.hide();
     }
     if(prettifiable.indexOf(mode) === -1) {
-      $("#btn-prettify").hide();
+      $btnPrettify.hide();
     }
 
     // buttons actions
-    $("#btn-prettify").on("click", function () {
-      let ed = ace.edit("UNIQUE_ID_OF_DIV");
+    $btnPrettify.on("click", function () {
+      let ed = ace.edit(EDITOR);
       let parser;
       switch (mode) {
         case "javascript":
@@ -341,6 +355,9 @@ class Ace extends React.PureComponent {
         case "typescript":
           parser = "typescript";
           break;
+        case "svg":
+          parser = "html";
+          break;
       }
       let result = A.prettify(ed.getValue(), parser, tabSize);
       console.log(result);
@@ -356,8 +373,8 @@ class Ace extends React.PureComponent {
       }
     });
   
-    $("#btn-format").on("click", function () {
-      let ed = ace.edit("UNIQUE_ID_OF_DIV");
+    $btnFormat.on("click", function () {
+      let ed = ace.edit(EDITOR);
       let parser;
       switch (mode) {
         case "javascript":
@@ -388,13 +405,13 @@ class Ace extends React.PureComponent {
       }
     });
   
-    $("#btn-save").on("click", function () {
-      $("#btn-save").css("font-style", "normal");
-      let ed = ace.edit("UNIQUE_ID_OF_DIV");
+    $(btnSave).on("click", function () {
+      $(btnSave).css("font-style", "normal");
+      let ed = ace.edit(EDITOR);
       const a = document.createElement("a");
       document.body.append(a);
       a.download = fileName;
-      a.href = "data:text/plain;base64," + btoa(ed.getValue());
+      a.href = "data:text/plain;base64," + A.utf8_to_base64(ed.getValue());
       a.click();
       a.remove();
     });
@@ -404,7 +421,7 @@ class Ace extends React.PureComponent {
   render() {
     return (
       <AceEditor
-        name="UNIQUE_ID_OF_DIV"
+        name={"EDITOR" + this.props.ID}
         theme={this.props.theme}
         mode={this.props.mode}
         value={this.props.contents}
@@ -417,13 +434,96 @@ class Ace extends React.PureComponent {
           tabSize: this.props.tabSize,
           enableBasicAutocompletion: false,
           enableLiveAutocompletion: this.props.autoCompletion,
-          enableSnippets: this.props.snippets
+          enableSnippets: this.props.snippets,
+          fontFamily: "UbuntuMono"
         }}
         showGutter={true}
-        onChange={onChange}
+        onChange={this.onChange}
       />
     );
   }
 }
 
-reactWidget("aceEditor", "output", { Ace: Ace }, {});
+
+/*----------------------------------------------------------------------------*/
+let Values; 
+
+class AceDiff extends React.PureComponent {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: props.contents
+    };
+    this.onChange = this.onChange.bind(this);
+  }
+
+  onChange(newValue) {
+    Values = newValue;
+    this.setState({
+      value: newValue
+    });
+  }
+
+  componentDidMount() {
+
+    $("#saveButtons").show();
+
+    $($(".ace_hidpi")[2]).css("left", "50%");
+
+    Values = this.props.contents;
+    let fileName1 = this.props.fileName1,
+        fileName2 = this.props.fileName2;
+
+    $("#btn-save1").on("click", function () {
+      let ed = ace.edit("DIFFEDITOR");
+      const a = document.createElement("a");
+      document.body.append(a);
+      a.download = fileName1;
+      a.href = "data:text/plain;base64," + A.utf8_to_base64(Values[0]);
+      a.click();
+      a.remove();
+    });
+
+    $("#btn-save2").on("click", function () {
+      let ed = ace.edit("DIFFEDITOR");
+      const a = document.createElement("a");
+      document.body.append(a);
+      a.download = fileName2;
+      a.href = "data:text/plain;base64," + A.utf8_to_base64(Values[1]);
+      a.click();
+      a.remove();
+    });
+
+  }
+
+  render() {
+    return (
+      <DiffEditor
+        name="DIFFEDITOR"
+        theme={this.props.theme}
+        mode={this.props.mode}
+        value={this.state.value}
+        fontSize={this.props.fontSize}
+        editorProps={{ 
+          $blockScrolling: false 
+        }}
+        setOptions={{
+          useWorker: false, 
+          tabSize: this.props.tabSize,
+          enableBasicAutocompletion: false,
+          enableLiveAutocompletion: this.props.autoCompletion,
+          enableSnippets: this.props.snippets,
+          fontFamily: "UbuntuMono"
+        }}
+        showGutter={true}
+        onChange={this.onChange}
+        wrapEnabled={false}
+      />
+    );
+  }
+}
+
+
+/* -------------------------------------------------------------------------- */
+reactWidget("aceEditor", "output", { Ace: Ace, AceDiff: AceDiff }, {});

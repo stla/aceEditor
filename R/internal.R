@@ -12,6 +12,7 @@ modeFromExtension <- function(ext){
          f90 = "fortran",
          gitignore = "gitignore",
          hs = "haskell",
+         htm = "html",
          html = "html",
          java = "java",
          js = "javascript",
@@ -315,3 +316,10 @@ binaryExtensions <- c(
   "zip",
   "zipx"
 )
+
+randomString <- function(size){
+  paste0(
+    sample(c(letters, LETTERS, 0:9), size, replace = TRUE),
+    collapse = ""
+  )
+}

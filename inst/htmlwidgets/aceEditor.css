@@ -1,3 +1,8 @@
+@font-face {
+  font-family: "UbuntuMono";
+  src: url("UbuntuMono-Regular.ttf") format("truetype");
+}
+
 html, body {
   margin: 0 !important;
 }
@@ -8,12 +13,19 @@ body {
   padding: 0 !important;
 }
 
-#buttonsBar {
+.buttonsBar, #saveButtons {
+  display: none;
   margin-bottom: 5px;
   width: 100%;
+  background-color: #363954;
+  background-image: linear-gradient(90deg, darkslategray 20%, powderblue 70%, #363954 100%);
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+  border-radius: 3px;
 }
 
-#buttonsBlock {
+
+.buttonsBlock {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
@@ -21,7 +33,7 @@ body {
 /*  justify-content: space-between; */
 }
 
-#btn-save {
+.rightButton {
   display: none;
   float: right;
 }
@@ -61,11 +73,13 @@ button:hover {
 	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#771e86, endColorstr=#a70be4);
 }
 
-#btn-prettify, #btn-format {
+.leftButton {
   margin-right: 5px;
 }
 
 .ace_scrollbar::-webkit-scrollbar-track {
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
   border-radius: 10px;
   background-color: crimson;
 }
@@ -73,16 +87,18 @@ button:hover {
   background-color: transparent;
 }
 .ace_scrollbar::-webkit-scrollbar-thumb {
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
   border-radius: 10px;
   background-color: tomato;
 }
 
 .aceEditor {
   position: relative;
-  display: block;
+  display: inline-block;
 }
 
-#UNIQUE_ID_OF_DIV {
+div[id^=EDITOR] {
   position: absolute;
   top: 0;
   right: 0;
@@ -91,15 +107,52 @@ button:hover {
   width: unset !important;
   height: unset !important;
   border: 1px solid silver;
+	-webkit-border-radius: 9px;
+	-moz-border-radius: 9px;
   border-radius: 9px;
 }
 
-.ace_gutter {
-  border-radius: 9px;
+div[id^=EDITOR] .ace_gutter {
+	-webkit-border-top-left-radius: 9px;
+	-moz-border-top-left-radius: 9px;
+  border-top-left-radius: 9px;
+	-webkit-border-bottom-left-radius: 9px;
+	-moz-border-bottom-left-radius: 9px;
+  border-bottom-left-radius: 9px;
 }
 
 .swal2-html-container pre {
   font-weight: bold;
   color: red;
   text-align: left;
+}
+
+#DIFFEDITOR {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 25px;
+  left: 0;
+  width: unset !important;
+  height: unset !important;
+  border: 1px solid silver;
+}
+
+.ace_hidpi {
+  width: 50% !important;
+  height: 100% !important;
+}
+
+.codeMarker {
+  background: #ffff0020;
+  position: absolute;
+  z-index: 20;
+}
+
+#btn-save1 {
+  float: left;
+}
+
+#btn-save2 {
+  float: right;
 }
