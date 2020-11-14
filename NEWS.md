@@ -6,7 +6,6 @@
 help of `htmltools::browsable`. Some examples are given.
 
 
-
 # aceEditor 0.1.0
 
 First release.
