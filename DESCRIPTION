@@ -1,6 +1,6 @@
 Package: aceEditor
 Title: The 'Ace' Editor as a HTML Widget
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: c(
     person(
       "Stéphane", "Laurent", 
@@ -40,7 +40,7 @@ LazyData: true
 RoxygenNote: 7.1.1
 Imports: 
     htmltools,
-    htmlwidgets,
+    htmlwidgets (>= 1.5.3),
     reactR,
     rstudioapi,
     tools

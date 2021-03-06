@@ -2,7 +2,7 @@
 #' @importFrom reactR html_dependency_corejs html_dependency_react html_dependency_reacttools
 #' @importFrom htmltools tagList tags
 #' @noRd
-aceEditor_html <- function(id, style, class, ...) {
+widget_html.aceEditor <- function(id, style, class, ...) {
   tagList(
     # Necessary for RStudio viewer version < 1.2
     html_dependency_corejs(),

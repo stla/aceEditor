@@ -1,3 +1,8 @@
+# aceEditor 1.0.1
+
+Compliance with the new 'htmlwidgets' convention.
+
+
 # aceEditor 1.0.0
 
 * Fixed the 'Save' functionality, which didn't work with UTF8 characters.
